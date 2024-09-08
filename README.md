@@ -64,15 +64,23 @@ You can also use a subdomain for your app without creating glue records. Here’
 
 ## Installation
 
-The setup is automated using Docker Compose. Just head to `docker/docker-compose.yml` and replace the `BASE_DOMAIN`, `NAMESERVERS`, and `EMAIL` values in the environment section with your own. This step is required for the application, PowerDNS, and Caddy to run properly.
+1. **Clone the Repository**:
 
-Now you can run the command:
+   ```bash
+   git clone https://github.com/Akid-Affian/namik-ddns.git
+   ```
 
-```bash
-docker compose up --build
-```
+2. **Run the Application**:
 
-Once the containers are up, you can visit `localhost:4321/setup` or `your-ip:4321/setup` to complete the setup and create your account.
+   ```bash
+   cd namik-ddns/docker
+   docker compose up --build
+   ```
+
+   > **Note**: Before running the command, make sure to edit `docker/docker-compose.yml` and replace the `BASE_DOMAIN`, `NAMESERVERS`, and `EMAIL` values in the environment section with your own.
+
+3. **Complete the Setup**:  
+   Visit `http://localhost:4321/setup` or `http://your-ip:4321/setup` to complete the setup and create your account.
 ## API Reference
 
 Our API is very similar to DuckDNS API see the docs [here](https://github.com/Akid-Affian/namik-ddns/blob/main/API-SPEC.md).
