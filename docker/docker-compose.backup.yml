@@ -1,0 +1,51 @@
+services:
+  # backup docker-compose.yml
+  namik-ddns:
+    build:
+      context: ../
+      dockerfile: ./docker/namik-ddns/Dockerfile
+    container_name: namik-ddns
+    environment:
+      NODE_ENV: production
+      PORT: 4321
+      BASE_DOMAIN: example.com # <<< Change this to your domain
+      NAMESERVERS: ns.example2.com # <<< Change this to your nameservers. Use a single nameserver or separate multiple nameservers with commas (e.g., ns1.example.com,ns2.example.com)
+    ports:
+      - "4321:4321"
+    restart: always
+    networks:
+      - pdns-network
+
+  # PowerDNS service for DNS resolution.
+  powerdns:
+    build:
+      context: ./powerdns
+      dockerfile: Dockerfile
+    container_name: powerdns
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    depends_on:
+      - namik-ddns
+    networks:
+      - pdns-network
+    restart: always
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    environment:
+      EMAIL: example@email.com # <<< Change this to your email
+      BASE_DOMAIN: example.com # <<< Change this to your domain
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - namik-ddns
+    networks:
+      - pdns-network
+    restart: always

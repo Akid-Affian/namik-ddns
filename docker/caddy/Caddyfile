@@ -1,0 +1,8 @@
+{
+	email {$EMAIL}
+}
+
+{$BASE_DOMAIN} {  
+	reverse_proxy namik-ddns:4321 
+	tls {$EMAIL} 
+}
