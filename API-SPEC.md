@@ -2,8 +2,6 @@
 
 The application uses a simple GET API to update your domain(s).
 
-If you have configured the application to use HTTPS (for example, by using Caddy), you can use both HTTPS and HTTP protocols. However, by default, the app uses HTTPS. For security reasons, it is strongly recommended to use HTTPS.
-
 The GET API is similar to the DuckDNS API. If you are familiar with it, you'll find this API easy to use. To update your domain(s), you can make a single HTTPS GET request to your configured domain using the following format:
 
 https://example.com/update?domains={YOURVALUE}&token={YOURVALUE}[&ip={YOURVALUE}][&ipv6={YOURVALUE}][&verbose=true][&clear=true]
