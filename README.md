@@ -75,7 +75,7 @@ docker compose up --build
 Once the containers are up, you can visit `localhost:4321/setup` or `your-ip:4321/setup` to complete the setup and create your account.
 ## API Reference
 
-Our API is very similar to DuckDNS API see the docs [here](https://www.cbtnuggets.com/blog/technology/networking/understanding-dns-glue-records).
+Our API is very similar to DuckDNS API see the docs [here](https://github.com/Akid-Affian/namik-ddns/blob/main/API-SPEC.md).
 
 
 ## Support
