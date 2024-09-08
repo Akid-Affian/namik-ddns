@@ -1,6 +1,6 @@
 # Namik-DDNS
 
-| [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/Akid-Affian/namik-ddns/blob/main/LICENSE) | [![Telegram Chat](https://img.shields.io/badge/Chat-Telegram-blue.svg)](https://github.com/Akid-Affian/namik-ddns) |
+| [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/Akid-Affian/namik-ddns/blob/main/LICENSE) | [![Telegram Chat](https://img.shields.io/badge/Chat-Telegram-blue.svg)](https://t.me/namikddns) |
 |---------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
 
 A complete self-hosted DDNS solution alternative to DuckDNS.
@@ -80,7 +80,7 @@ Our API is very similar to DuckDNS API see the docs [here](https://www.cbtnugget
 
 ## Support
 
-Join our telegram (coming soon)
+Join our telegram [here](https://t.me/namikddns)
 
 
 ## License
