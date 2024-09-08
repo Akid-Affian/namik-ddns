@@ -1,0 +1,184 @@
+---
+import EditIpModal from "./EditIpModal.astro";
+import db from "../lib/db";
+import { verifySession } from "../lib/verifySession";
+import { getCookieValue } from "../lib/cookies";
+import { cacheManager } from "../lib/cacheManager";
+import { getAppConfig } from "../lib/appConfig";
+import type { Domain } from "../types/Domain";
+import type { User } from "../types/User";
+import { format } from "timeago.js";
+
+const cookies = Astro.request.headers.get("cookie") || "";
+const authToken = getCookieValue(cookies, "auth_token");
+let userDomains: Domain[] = [];
+
+const appConfig = getAppConfig();
+
+// Handle user authentication and domain fetching
+if (authToken && verifySession(authToken)) {
+    const user = db
+        .prepare("SELECT id FROM users WHERE auth_token = ?")
+        .get(authToken) as User | undefined;
+
+    if (user) {
+        
+        const cache = cacheManager.getCache("userDomains", 180);
+        userDomains = cache.get(user.id) || [];
+
+        if (userDomains.length === 0) {
+            
+            userDomains = db
+                .prepare(
+                    "SELECT id, domain_name, created_at, updated_at FROM domains WHERE user_id = ?",
+                )
+                .all(user.id) as Domain[];
+
+            
+            userDomains = userDomains.map((domain) => {
+                const dnsRecords = db
+                    .prepare(
+                        "SELECT record_type, content FROM dns_records WHERE domain_id = ?",
+                    )
+                    .all(domain.id) as Array<{
+                    record_type: string;
+                    content: string;
+                }>;
+
+                const aRecords = dnsRecords
+                    .filter((record) => record.record_type === "A")
+                    .map((record) => record.content)
+                    .join(", ");
+
+                const aaaaRecords = dnsRecords
+                    .filter((record) => record.record_type === "AAAA")
+                    .map((record) => record.content)
+                    .join(", ");
+
+
+                return {
+                    ...domain,
+                    aRecords,
+                    aaaaRecords,
+                };
+            });
+
+
+            cache.set(user.id, userDomains);
+        }
+    }
+}
+
+
+const baseDomain = appConfig.base_domain;
+---
+
+<main class="flex justify-center items-center mb-10 domain-container">
+    <div class="p-6 rounded-lg shadow-lg w-full max-w-6xl bg-[#2C3333]">
+        <h1 class="text-white text-xl md:text-2xl text-center mb-4">Domains</h1>
+        <div
+            class="flex flex-col md:flex-row justify-center items-center md:space-x-2"
+        >
+            <div
+                class="flex justify-center items-center flex-grow md:flex-grow-0"
+            >
+                <span
+                    class="bg-neutral-900 text-gray-100 px-3 py-2 rounded-l-md"
+                    >http://</span
+                >
+                <input
+                    type="text"
+                    placeholder="sub domain"
+                    id="subdomainInput"
+                    class="px-3 py-2 flex-grow focus:outline-none"
+                />
+                <span
+                    class="bg-neutral-900 text-gray-100 px-3 py-2 rounded-r-md md:rounded-none truncate max-w-xs"
+                    >.{baseDomain}</span
+                >
+            </div>
+            <button
+                id="addDomainButton"
+                class="bg-[#3E7059] hover:bg-[#2b5944] text-gray-100 px-4 py-2 rounded-md md:rounded-r-md mt-3 md:mt-0"
+            >
+                Add Domain
+            </button>
+        </div>
+        <div class="flex justify-center items-center">
+            <p
+                class="text-white mt-6 mb-4 bg-slate-600 w-fit px-2 py-2 rounded-md"
+            >
+                Click on the white input fields to edit DNS records.
+            </p>
+        </div>
+
+        <!-- Responsive Table -->
+        <div class="mt-4 overflow-x-auto">
+            <table class="min-w-full bg-[#2C3333] text-white">
+                <thead>
+                    <tr class="bg-[#3E7059]">
+                        <th class="py-2 px-4 text-left">Domain</th>
+                        <th class="py-2 px-4 text-left">Current IP</th>
+                        <th class="py-2 px-4 text-left">IPv6</th>
+                        <th class="py-2 px-4 text-left">Changed</th>
+                        <th class="py-2 px-4 text-left">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="domainTableBody">
+                    {
+                        userDomains.map((domain) => (
+                            <tr class="border-b border-gray-700">
+                                <td class="py-2 px-4">{domain.domain_name}</td>
+                                <td class="py-2 px-4">
+                                    <input
+                                        type="text"
+                                        value={domain.aRecords || ""}
+                                        class="bg-gray-200 text-black w-32 px-2 py-1 rounded focus:outline-none"
+                                        title="Edit IP Address"
+                                        id={`currentIpInput-${domain.id}`}
+                                    />
+                                </td>
+                                <td class="py-2 px-4">
+                                    <input
+                                        type="text"
+                                        value={domain.aaaaRecords || ""}
+                                        class="bg-gray-200 text-black w-60 px-2 py-1 rounded focus:outline-none"
+                                        title="Edit IPv6 Address"
+                                        id={`ipv6Input-${domain.id}`}
+                                    />
+                                </td>
+                                <td class="py-2 px-4">
+                                    {format(domain.updated_at)}
+                                </td>
+                                <td class="py-2 px-4">
+                                    <button
+                                        class="bg-red-600 hover:bg-red-800 text-white px-3 py-1 rounded delete-domain-button"
+                                        data-domain-id={domain.id}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<EditIpModal />
+
+<script>
+    import { initializeAddDomainButton } from "../scripts/addDomain";
+    import { handleDeleteButtonClick } from "../scripts/deleteDomain";
+
+    document.addEventListener("astro:page-load", () => {
+        initializeAddDomainButton();
+        document.addEventListener("click", handleDeleteButtonClick);
+    });
+
+    document.addEventListener("astro:after-swap", () => {
+        initializeAddDomainButton();
+    });
+</script>

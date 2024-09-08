@@ -1,0 +1,88 @@
+---
+import { Icon } from "astro-icon/components";
+import SetupConfirmationModal from "../components/SetupConfirmationModal.astro";
+import type { AppConfig } from "../types/AppConfig";
+import db from "../lib/db";
+
+const appConfig = db
+    .prepare(
+        "SELECT base_domain FROM app_config WHERE id = 1",
+    )
+    .get() as AppConfig;
+
+const setupPage1Class: string = appConfig.base_domain ? "hidden" : "flex";
+---
+
+<main class={`p-6 ${setupPage1Class} justify-center items-center`}>
+    <div
+        class="flex flex-col justify-center items-center max-w-[80vw] w-full bg-[#2C3333] p-6 rounded-lg shadow-lg"
+    >
+        <h1 class="text-white text-2xl md:text-3xl text-center">Setup 1/2</h1>
+<p class="text-lg text-center mt-6 text-gray-100 break-words mb-4">
+    This page will help you set up the project. Please provide the necessary information below. Note: Using an apex domain might take longer for DNS to propagate. Most common TLDs, like .com, typically propagate quickly, but if it has been more than 6-12 hours, there may be an issue or misconfiguration.
+</p>
+
+        <!-- Form for entering base domain and selecting IP type -->
+<form class="mt-6 w-full">
+    <div class="mb-4">
+        <label for="baseDomain" class="block text-white text-xl mb-2">
+            Your Domain
+        </label>
+        <input
+            type="text"
+            id="baseDomainInput"
+            name="baseDomain"
+            placeholder="example.com"
+            class="w-full p-3 rounded-md bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2b5944]"
+            required
+        />
+        <p class="text-base text-gray-300 mt-2 dynamic-text">
+            This will be used as the base domain for subdomains like
+            <span class="text-blue-400">(sub).<span class="basedomain">example.com</span></span>
+        </p>
+    </div>
+
+    <div class="mb-4">
+        <label for="nameServer" class="block text-white text-xl mb-2">
+            Your Nameserver
+        </label>
+        <textarea
+            id="nameServerInput"
+            name="nameServer"
+            placeholder="Enter one nameserver per line, e.g., nameserver.example2.com"
+            class="w-full p-3 rounded-md bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2b5944]"
+            rows="6"
+            required
+        ></textarea>
+        <p class="text-base text-gray-300 mt-2">
+            Enter up to 6 nameservers, one per line.
+        </p>
+    </div>
+
+    <div class="flex justify-center">
+        <button
+            id="saveAndContinueButton"
+            type="submit"
+            class="flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
+        >
+            <Icon name="ph:read-cv-logo" class="mr-2" />
+            Save and Continue
+        </button>
+    </div>
+</form>
+
+        <SetupConfirmationModal />
+    </div>
+</main>
+
+<script>
+    import { setupEventListeners } from "../scripts/setupPageEventListeners";
+
+    document.addEventListener("astro:page-load", () => {
+        setupEventListeners(); 
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        setupEventListeners(); 
+    });
+</script>

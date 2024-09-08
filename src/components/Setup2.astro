@@ -1,0 +1,153 @@
+---
+import type { AppConfig } from "../types/AppConfig";
+import db from "../lib/db";
+
+const appConfig = db
+    .prepare(
+        "SELECT base_domain FROM app_config WHERE id = 1",
+    )
+    .get() as AppConfig;
+
+const setupPage2Class: string = appConfig.base_domain ? "flex" : "hidden";
+---
+
+<main class={`p-6 ${setupPage2Class} justify-center items-center`}>
+    <div
+        class="flex flex-col justify-center items-center max-w-[80vw] w-full bg-[#2C3333] p-6 rounded-lg shadow-lg"
+    >
+        <h1 class="text-white text-2xl md:text-3xl text-center">Setup 2/2</h1>
+
+        <p class="text-lg text-center mt-6 text-gray-100 break-words">
+            Now you can add your account and start using the app. By default
+            this account will be a super admin account.
+        </p>
+
+        <form
+            id="setup2Form"
+            class="p-6 rounded-lg shadow-lg w-full max-w-md bg-[#2C3333]"
+        >
+            <div class="mb-4">
+                <label for="username" class="block text-gray-200 text-base mb-2"
+                    >Username</label
+                >
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    autocomplete="username"
+                    class="w-full p-3 rounded-md bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2b5944]"
+                    placeholder="Enter your username"
+                    required
+                />
+            </div>
+
+            <div class="mb-6">
+                <label
+                    for="password"
+                    class="block text-gray-200 text-base font-semibold mb-2"
+                    >Password</label
+                >
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="new-password"
+                    class="w-full p-3 rounded-md bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2b5944]"
+                    placeholder="Enter your password"
+                    required
+                />
+            </div>
+
+            <div class="mb-6">
+                <label
+                    for="confirmPassword"
+                    class="block text-gray-200 text-base mb-2"
+                    >Confirm Password</label
+                >
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    autocomplete="new-password"
+                    class="w-full p-3 rounded-md bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2b5944]"
+                    placeholder="Confirm your password"
+                    required
+                />
+            </div>
+
+            <div class="flex items-center justify-between">
+                <button
+                    id="setup2Button"
+                    type="submit"
+                    class="w-full bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md font-semibold"
+                >
+                    Confirm
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+    document.addEventListener("astro:page-load", () => {
+        const setup2Form = document.getElementById(
+            "setup2Form",
+        ) as HTMLFormElement | null;
+
+        if (setup2Form) {
+            const existingHandler = setup2Form.getAttribute(
+                "data-handler-attached",
+            );
+
+            if (existingHandler) {
+                return; 
+            }
+
+            setup2Form.addEventListener(
+                "submit",
+                async (event: Event) => {
+                    event.preventDefault();
+
+                    const formData = new FormData(setup2Form);
+
+                    try {
+                        const response = await fetch("/api/setup-2", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                username: formData.get("username"),
+                                password: formData.get("password"),
+                                confirmPassword:
+                                    formData.get("confirmPassword"),
+                            }),
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            alert(result.message); // Alert success message
+                            location.reload(); 
+                        } else {
+                            alert(`Error: ${result.message}`); // Alert error message
+                        }
+                    } catch (error) {
+                        console.error("An error occurred:", error);
+                        alert(
+                            "An unexpected error occurred. Please try again.",
+                        ); // Alert error message
+                    }
+                },
+                { once: true },
+            );
+
+            setup2Form.setAttribute("data-handler-attached", "true");
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const event = new Event("astro:page-load");
+        document.dispatchEvent(event);
+    });
+</script>

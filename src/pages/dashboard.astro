@@ -1,0 +1,16 @@
+---
+import Layout from "../components/Layout.astro";
+import DashboardInfoCard from "../components/DashboardInfoCard.astro";
+import DomainManagementCard from "../components/DomainManagementCard.astro";
+---
+
+<Layout title="Dashboard">
+    <DashboardInfoCard />
+    <DomainManagementCard />
+</Layout>
+
+<script>
+    import { initRedirectIfNotLoggedIn } from "../scripts/redirectIfNotLoggedIn";
+
+    initRedirectIfNotLoggedIn();
+</script>

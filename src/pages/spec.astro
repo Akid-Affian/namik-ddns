@@ -1,0 +1,348 @@
+---
+import Layout from "../components/Layout.astro";
+import { getAppConfig } from "../lib/appConfig";
+
+// Fetch the appConfig to get the base domain
+const config = getAppConfig();
+const baseDomain = config.base_domain ?? "example.com"; // Use default "example.com" if null
+---
+
+<Layout title="Spec">
+    <main class="p-6 flex justify-center items-center">
+        <div class="flex justify-center items-center">
+            <div
+                class="p-6 rounded-lg shadow-lg max-w-[80vw] w-full bg-[#2C3333]"
+            >
+                <h1 class="text-gray-100 text-xl md:text-2xl text-center mb-4">
+                    API Specification
+                </h1>
+                <p class="text-lg text-center mt-6 text-gray-100 break-words">
+                    The application uses a simple GET API to update your
+                    domain(s).
+                </p>
+                <p class="text-lg text-center mt-6 text-gray-100 break-words">
+                    If you have configured the application to use HTTPS (for
+                    example, by using Caddy), you can use both HTTPS and HTTP
+                    protocols. However, by default, the app uses HTTPS. For
+                    security reasons, it is strongly recommended to use HTTPS.
+                </p>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    The GET API is similar to the DuckDNS API. If you are
+                    familiar with it, you'll find this API easy to use. To
+                    update your domain(s), you can make a single HTTPS GET
+                    request to your configured domain using the following
+                    format:
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">
+                        https://&#123;YOURBASEDOMAIN&#125;/update?domains=&#123;YOURVALUE&#125;&token=&#123;YOURVALUE&#125;[&ip=&#123;YOURVALUE&#125;][&ipv6=&#123;YOURVALUE&#125;][&verbose=true][&clear=true]
+                    </p>
+                </div>
+                <p class="text-lg text-center mt-3 text-gray-100 break-words">
+                    Replace <span class="text-green-400 font-mono"
+                        >&#123;YOURBASEDOMAIN&#125;</span
+                    >, <span class="text-green-400 font-mono"
+                        >&#123;YOURVALUE&#125;</span
+                    >, <span class="text-green-400 font-mono"
+                        >&#123;ip&#125;</span
+                    >, <span class="text-green-400 font-mono"
+                        >&#123;ipv6&#125;</span
+                    >, <span class="text-green-400 font-mono"
+                        >&#123;verbose&#125;</span
+                    >, and <span class="text-green-400 font-mono"
+                        >&#123;clear&#125;</span
+                    > with your specific values.
+                </p>
+                <ul
+                    class="text-lg text-center mt-6 text-gray-100 list-disc list-inside"
+                >
+                    <li>
+                        You can specify a single domain or provide a list of
+                        domains separated by commas.
+                    </li>
+                    <li>
+                        It's not necessary to include the <span
+                            class="font-mono">.{baseDomain}</span
+                        > part—just use the subdomain name.
+                    </li>
+                    <li>
+                        If you don't specify an IP address, the system will
+                        attempt to auto-detect it (IPv4 or IPv6)
+                    </li>
+                    <li>
+                        The <span class="font-mono">ip</span> parameter accepts both
+                        IPv4 and IPv6 addresses.
+                    </li>
+                    <li>
+                        To update both IPv4 and IPv6 records simultaneously, you
+                        can use the <span class="font-mono">ipv6</span> parameter.
+                    </li>
+                    <li>
+                        Use the <span class="font-mono">clear=true</span> parameter
+                        to remove both IPv4 and IPv6 records.
+                    </li>
+                </ul>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    Example Request (IPv4 and IPv6): Note that the app use
+                    "token" and "API key" interchangeably. You can find your API
+                    key on the dashboard page.
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+    <p class="text-green-400 font-mono">
+        https://{baseDomain}/update?domains=mydomain&token=put-your-token-here&ip=1.1.1.1&verbose=true
+    </p>
+
+    <p class="text-gray-100 text-center">or</p>
+
+    <p class="text-green-400 font-mono">
+        https://{baseDomain}/update?domains=mydomain&token=put-your-token-here&ip=2001:4860:4860::8888&verbose=true
+    </p>
+                </div>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    A normal <span class="font-mono">good response</span> is
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">OK</p>
+                </div>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    A normal <span class="font-mono">bad response</span> is
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">KO</p>
+                </div>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    if you add the <span class="font-mono">&verbose=true</span> parameter
+                    to your request, then OK responses have more information:
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">
+                        OK
+                        <br />
+                        8.8.8.8 [The current IPV6 address for your update - can be
+                        blank if u did not request an IPV4 update]
+                        <br />
+                        2001:db8::2 [The current IPV6 address for your update - can
+                        be blank if u did not request an IPV6 update]
+                        <br />
+                        UPDATED [UPDATED or NOCHANGE]
+                    </p>
+                </div>
+                <p class="text-xl text-center mt-6 text-gray-100 break-words">
+                    GET Parameters:
+                </p>
+                <ul
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 list-disc list-inside"
+                >
+                    <li>
+                        <strong>domains</strong> - <span class="text-red-500"
+                            >REQUIRED</span
+                        > - Comma-separated list of the subnames you want to update.
+                    </li>
+                    <li>
+                        <strong>token</strong> - <span class="text-red-500"
+                            >REQUIRED</span
+                        > - Your account token/api key.
+                    </li>
+                    <li>
+                        <strong>ip</strong> - <span class="text-green-500"
+                            >OPTIONAL</span
+                        > - If left blank, the app will detect IPv4 or IPv6 addresses. You
+                        can also supply a valid IPv4 or IPv6 address.
+                    </li>
+                    <li>
+                        <strong>ipv6</strong> - <span class="text-green-500"
+                            >OPTIONAL</span
+                        > - A valid IPv6 address.
+                    </li>
+                    <li>
+                        <strong>verbose</strong> - <span class="text-green-500"
+                            >OPTIONAL</span
+                        > - If set to true, you get detailed information about how
+                        the request was processed.
+                    </li>
+                    <li>
+                        <strong>clear</strong> - <span class="text-green-500"
+                            >OPTIONAL</span
+                        > - If set to true, the update will ignore all IPs and clear
+                        both your records.
+                    </li>
+                </ul>
+                <div class="pt-20"></div>
+                <p class="text-xl text-center mt-6 text-gray-100 break-words">
+                    Special no-parameter request format:
+                </p>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    Some very basic routers can only make requests without
+                    parameters
+                    <br />
+                    For these requirements the following request is possible
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">
+                        https://{baseDomain}/update/&#123;YOURDOMAIN&#125;/&#123;YOURTOKEN-OR-APIKEY&#125;[/&#123;YOURIPADDRESS&#125;
+                    </p>
+                </div>
+                <ul
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 list-disc list-inside"
+                >
+                    <li>
+                        <strong>YOURDOMAIN</strong> - <span class="text-red-500"
+                            >REQUIRED</span
+                        > - Your registered subdomain. Only a single subdomain.
+                    </li>
+                    <li>
+                        <strong>YOURTOKEN-OR-APIKEY</strong> - <span
+                            class="text-red-500">REQUIRED</span
+                        > - Your account token or API key.
+                    </li>
+                    <li>
+                        <strong>YOURIPADDRESS</strong> - <span
+                            class="text-green-500">OPTIONAL</span
+                        > - If left blank, the app will detect IPv4 or IPv6 addresses. You
+                        can also supply a valid IPv4 or IPv6 address to override
+                        this.
+                    </li>
+                </ul>
+                <div class="pt-20"></div>
+                <p class="text-xl text-center mt-6 text-gray-100 break-words">
+                    TXT Record for GET Requests:
+                </p>
+                <p class="text-lg text-center mt-6 text-gray-100 break-words">
+                    The TXT update URL can be requested on HTTPS or HTTP. It is
+                    recommended that you always use HTTPS
+                    <br />
+                    The app provide HTTP services for unfortunate users that have
+                    HTTPS blocked
+                </p>
+                <p class="text-lg text-center mt-6 text-gray-100 break-words">
+                    Your TXT record will apply to all sub-subdomains under your
+                    domain e.g. xxx.yyy.{baseDomain} shares the same TXT record
+                    as yyy.{baseDomain}
+                </p>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    Example:
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">
+                        https://{baseDomain}/update?domains=&#123;YOURVALUE&#125;&token=&#123;YOURVALUE&#125;&txt=&#123;YOUR-TXT-VALUE&#125[&verbose=true]
+                    </p>
+                </div>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    Example 2:
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">
+                        https://{baseDomain}/update?domains=mydomain&token=mytoken&txt=mytext&verbose=true
+                    </p>
+                </div>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    A normal <span class="font-mono">good response</span> is
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">OK</p>
+                </div>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    A normal <span class="font-mono">bad response</span> is
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">KO</p>
+                </div>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    if you add the &verbose=true parameter to your request, then
+                    OK responses have more information
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">
+                        OK
+                        <br />
+                        TXT=some-text [The current TXT record for your update]
+                        <br />
+                        UPDATED [UPDATED or NOCHANGE]
+                    </p>
+                </div>
+                <p class="text-xl text-center mt-6 text-gray-100 break-words">
+                    TXT Parameters:
+                </p>
+                <ul
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 list-disc list-inside"
+                >
+                    <li>
+                        <strong>domains</strong> - <span class="text-red-500"
+                            >REQUIRED</span
+                        > - Comma-separated list of the subnames you want to update.
+                    </li>
+                    <li>
+                        <strong>token</strong> - <span class="text-red-500"
+                            >REQUIRED</span
+                        > - Your account token/api key.
+                    </li>
+                    <li>
+                        <strong>txt</strong> - <span class="text-red-500"
+                            >REQUIRED</span
+                        > - The txt you require.
+                    </li>
+                    <li>
+                        <strong>verbose</strong> - <span class="text-green-500"
+                            >OPTIONAL</span
+                        > - If set to true, you get information back about how the
+                        request went.
+                    </li>
+                </ul>
+                <p class="text-xl text-center mt-16 text-gray-100 break-words">
+                    Note that the TXT record does not show up in the WEB
+                    interface
+                </p>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    To see your TXT record on linux or osx you can query DNS
+                    directly
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">
+                        dig test.{baseDomain} TXT
+                    </p>
+                </div>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    As stated before, this record will be also presented for any
+                    sub-subdomain queries
+                </p>
+                <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+                    <p class="text-green-400 font-mono">
+                        dig sub.test.{baseDomain} TXT
+                    </p>
+                </div>
+                <p
+                    class="text-lg text-center mt-6 mb-4 text-gray-100 break-words"
+                >
+                    This can be used for example to prove your ownership with
+                    letsencrypt.org
+                </p>
+            </div>
+        </div>
+    </main>
+</Layout>

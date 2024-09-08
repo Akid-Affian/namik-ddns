@@ -1,0 +1,73 @@
+---
+import Layout from "../components/Layout.astro";
+import LoginAuthForm from "../components/LoginAuthForm.astro";
+import { loginUser } from "../lib/loginUser";
+import { getAppConfig } from "../lib/appConfig";
+
+let result: { success: boolean; message: string; authToken?: string } = { success: false, message: "" };
+
+const appConfig = getAppConfig();
+
+if (Astro.request.method === "POST") {
+    const formData = await Astro.request.formData();
+    result = await loginUser(formData);
+
+    if (result.success && result.authToken) {
+        const maxAgeInSeconds = appConfig.auth_token_max_age * 60; // Convert from minutes to seconds
+        const isLocalhost = Astro.request.headers.get('host')?.startsWith('localhost') || Astro.request.headers.get('host')?.startsWith('127.0.0.1');
+
+        // Set cookie flags based on whether it's localhost or not
+        const secureFlag = isLocalhost ? '' : 'Secure; ';
+
+        const authCookie = `auth_token=${result.authToken}; HttpOnly; ${secureFlag}Path=/; Max-Age=${maxAgeInSeconds}; SameSite=Strict`;
+        const frontendCookie = `frontend_session=; Path=/; ${secureFlag}Max-Age=${maxAgeInSeconds}; SameSite=Strict`;
+
+        Astro.response.headers.set("Set-Cookie", authCookie);
+        Astro.response.headers.append("Set-Cookie", frontendCookie);
+    }
+}
+
+// Determine the class for the div based on first_time_setup value from appConfig
+const setupClass = appConfig.first_time_setup === 1 ? "flex" : "hidden";
+---
+
+<Layout title="Login">
+    <main class="p-6">
+        <div class={`${setupClass} justify-center items-center mb-6 mt-2`}>
+            <div class="flex justify-center items-center px-6 py-4 bg-[#474F21] rounded-lg text-gray-200">
+                <p>
+                    First time setup detected! Please visit 
+                    <a href="/setup" class="underline text-blue-400 hover:text-blue-500">
+                        setup page
+                    </a> 
+                    to complete the setup!
+                </p>
+            </div>  
+        </div>
+
+        <div class="flex justify-center items-center">
+            <h1 class="text-white text-2xl md:text-3xl">Login</h1>
+        </div>
+        <div class="mt-8 flex justify-center items-center">
+            <LoginAuthForm />
+        </div>
+    </main>
+</Layout>
+
+{
+    result.message && (
+        <script is:inline define:vars={{ result }}>
+            window.alert(result.message);
+            if (result.success) {
+                window.location.href = '/dashboard';
+            } else {
+                window.location.reload(true); 
+            }
+        </script>
+    )
+}
+
+<script>
+    import { initRedirectIfLoggedIn } from "../scripts/redirectIfLoggedIn";
+    initRedirectIfLoggedIn();
+</script>

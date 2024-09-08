@@ -1,0 +1,110 @@
+---
+import { verifySession } from "../lib/verifySession";
+import { formatTimestamp } from "../lib/formatTimestamp";
+import { getCookieValue } from "../lib/cookies";
+import type { Log } from "../types/Log";
+
+const cookies = Astro.request?.headers.get("cookie") || "";
+const authToken = getCookieValue(cookies, "auth_token");
+
+if (!authToken || !verifySession(authToken)) {
+    return Astro.redirect("/");
+}
+
+// Get the full URL for the current request
+const baseURL = new URL(Astro.request.url).origin;
+const adminLogsURL = `${baseURL}/api/admin-logs`;
+
+// Get the current page from the query parameters (default to 1 if not provided)
+const searchParams = new URL(Astro.request.url).searchParams;
+const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
+const logsResponse = await fetch(adminLogsURL, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        Cookie: cookies,
+    },
+    body: JSON.stringify({ page: currentPage }),
+});
+
+const logsData = await logsResponse.json();
+const adminLogs: Log[] = logsData.logs || [];
+const pagination = logsData.pagination;
+---
+
+<main class="flex justify-center items-center mb-8 admin-logs-container mt-6">
+    <div class="p-6 rounded-lg shadow-lg w-full max-w-6xl bg-[#2C3333]">
+        <h1 class="text-white text-xl md:text-2xl text-center mb-4">
+            Admin Logs
+        </h1>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-[#2C3333] text-white">
+                <thead>
+                    <tr class="bg-[#3E7059]">
+                        <th class="py-2 px-4 text-left w-1/5">Admin</th>
+                        <th class="py-2 px-4 text-left w-1/3">Action</th>
+                        <th class="py-2 px-4 text-left w-1/3">Target User</th>
+                        <th class="py-2 px-4 text-left w-1/4">Details</th>
+                        <th class="py-2 px-4 text-left w-1/4">Time Ago</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                    {
+                        adminLogs.length > 0 ? (
+                            adminLogs.map((log: Log) => (
+                                <tr class="border-b border-gray-700">
+                                    <td class="py-2 px-4">
+                                        {log.admin_username}
+                                    </td>
+                                    <td class="py-2 px-4">{log.action}</td>
+                                    <td class="py-2 px-4">
+                                        {log.target_username}
+                                    </td>
+                                    <td class="py-2 px-4">
+                                        {log.details ? log.details : "N/A"}
+                                    </td>
+                                    <td class="py-2 px-4">
+                                        {formatTimestamp(log.timestamp)}
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    No logs found
+                                </td>
+                            </tr>
+                        )
+                    }
+                </tbody>
+            </table>
+            <div class="flex justify-between mt-4">
+                <a
+                    href={pagination.currentPage > 1
+                        ? `?page=${pagination.currentPage - 1}`
+                        : "#"}
+                    class={`bg-[#3E7059] text-white py-2 px-4 rounded ${pagination.currentPage <= 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+                    aria-disabled={pagination.currentPage <= 1}
+                >
+                    Previous
+                </a>
+                <span class="text-white"
+                    >Page {pagination.currentPage} of {
+                        pagination.totalPages
+                    }</span
+                >
+                <a
+                    href={pagination.currentPage < pagination.totalPages
+                        ? `?page=${pagination.currentPage + 1}`
+                        : "#"}
+                    class={`bg-[#3E7059] text-white py-2 px-4 rounded ${pagination.currentPage >= pagination.totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
+                    aria-disabled={pagination.currentPage >=
+                        pagination.totalPages}
+                >
+                    Next
+                </a>
+            </div>
+        </div>
+    </div>
+</main>

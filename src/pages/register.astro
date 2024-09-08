@@ -1,0 +1,51 @@
+---
+import Layout from "../components/Layout.astro";
+import RegisterAuthForm from "../components/RegisterAuthForm.astro";
+import { registerUser } from "../lib/registerUser";
+import { getAppConfig } from "../lib/appConfig";
+
+const appConfig = getAppConfig();
+
+// Check if web registration is enabled
+const enableWebRegistration = appConfig.enable_web_registration === 1;
+
+if (!enableWebRegistration) {
+    return Astro.redirect('/');
+}
+
+let result = { success: false, message: "" };
+if (Astro.request.method === "POST") {
+    const formData = await Astro.request.formData();
+    result = await registerUser(formData);
+}
+---
+
+<Layout title="Register">
+    <main class="p-6">
+        <div class="flex justify-center items-center">
+            <h1 class="text-white text-2xl md:text-3xl">Register</h1>
+        </div>
+        <div class="mt-8 flex justify-center items-center">
+            <RegisterAuthForm />
+        </div>
+    </main>
+</Layout>
+
+{
+    result.message && (
+        <script is:inline define:vars={{ result }}>
+            window.alert(result.message); 
+            if (result.success) {
+                window.location.href = '/login';
+            } else {
+                window.location.reload(true); 
+            }
+        </script>
+    )
+}
+
+
+<script>
+    import { initRedirectIfLoggedIn } from "../scripts/redirectIfLoggedIn";
+    initRedirectIfLoggedIn();
+</script>

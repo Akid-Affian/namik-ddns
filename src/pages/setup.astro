@@ -1,0 +1,22 @@
+---
+import Layout from "../components/Layout.astro";
+import Setup1 from "../components/Setup1.astro";
+import Setup2 from "../components/Setup2.astro";
+import db from "../lib/db";
+import type { AppConfig } from "../types/AppConfig";
+
+const appConfig = db
+    .prepare("SELECT first_time_setup FROM app_config WHERE id = 1")
+    .get() as AppConfig;
+
+// Check if the first_time_setup is false (0)
+if (appConfig.first_time_setup === 0) {
+    // Return a redirect response
+    return Astro.redirect("/");
+}
+---
+
+<Layout title="Setup">
+    <Setup1 />
+    <Setup2 />
+</Layout>

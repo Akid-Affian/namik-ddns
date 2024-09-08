@@ -1,0 +1,151 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<div
+    id="setupConfirmationModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 invisible opacity-0 transition-opacity duration-300"
+>
+    <div class="bg-[#2C3333] rounded-lg shadow-lg p-8 max-w-lg w-full">
+        <h2 id="modalTitle" class="text-xl font-semibold mb-4 text-gray-100">
+            Double-check that you've entered the correct information. Are you
+            sure you want to continue?
+        </h2>
+
+        <div class="flex justify-end">
+            <button
+                id="confirmSetupConfirmationButton"
+                class="bg-[#3E7059] hover:bg-[#2b5944] text-white px-4 py-2 rounded mr-2 flex items-center"
+            >
+                <Icon
+                    name="svg-spinners:180-ring-with-bg"
+                    size={20}
+                    class="mr-2 hidden icon-spin"
+                />
+                Yes
+            </button>
+
+            <button
+                id="cancelSetupConfirmationButton"
+                class="bg-gray-600 text-white px-4 py-2 rounded"
+            >
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function setupModalEventListeners(): void {
+    const saveAndContinueButton = document.getElementById("saveAndContinueButton") as HTMLButtonElement | null;
+    const setupConfirmationModal = document.getElementById("setupConfirmationModal") as HTMLElement | null;
+    const confirmSetupConfirmationButton = document.getElementById("confirmSetupConfirmationButton") as HTMLButtonElement | null;
+    const cancelSetupConfirmationButton = document.getElementById("cancelSetupConfirmationButton") as HTMLButtonElement | null;
+
+    if (
+        !saveAndContinueButton ||
+        !setupConfirmationModal ||
+        !confirmSetupConfirmationButton ||
+        !cancelSetupConfirmationButton
+    ) {
+        return;
+    }
+
+    
+    if (confirmSetupConfirmationButton.dataset.listenersAdded === "true") {
+        return;
+    }
+
+    
+    saveAndContinueButton.addEventListener("click", handleSaveAndContinue);
+    cancelSetupConfirmationButton.addEventListener("click", handleCancel);
+    confirmSetupConfirmationButton.addEventListener("click", handleConfirm);
+
+    
+    confirmSetupConfirmationButton.dataset.listenersAdded = "true";
+
+    function handleSaveAndContinue(this: HTMLButtonElement, event: Event): void {
+        event.preventDefault();
+        if (setupConfirmationModal) {
+            setupConfirmationModal.classList.remove("invisible", "opacity-0");
+            setupConfirmationModal.classList.add("visible", "opacity-100");
+        }
+    }
+
+    function handleCancel(this: HTMLButtonElement): void {
+        if (setupConfirmationModal) {
+            setupConfirmationModal.classList.remove("visible", "opacity-100");
+            setupConfirmationModal.classList.add("invisible", "opacity-0");
+        }
+    }
+
+    async function handleConfirm(this: HTMLButtonElement): Promise<void> {
+    const baseDomainInput = document.getElementById("baseDomainInput") as HTMLInputElement | null;
+    const nameServerInput = document.getElementById("nameServerInput") as HTMLTextAreaElement | null;
+
+    if (!baseDomainInput || !nameServerInput) {
+        console.error("Base domain or Nameserver input is missing in the DOM.");
+        return;
+    }
+
+    const baseDomain = baseDomainInput.value;
+    const nameServers = nameServerInput.value
+        .split("\n") // Split by newlines to handle multiple nameservers
+        .map(ns => ns.trim()) // Trim whitespace
+        .filter(ns => ns !== ""); // Filter out empty lines
+
+    // Prepare nameserver data to send to the backend
+    const nameServerData = nameServers.length === 1 ? nameServers[0] : nameServers;
+
+    const iconElement = confirmSetupConfirmationButton?.querySelector("svg");
+
+    if (iconElement) {
+        // Show the icon and add the `icon-spin` class to start spinning the icon
+        iconElement.classList.remove("hidden");
+        iconElement.classList.add("icon-spin");
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    try {
+        const response = await fetch("/api/setup-1", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify({
+                baseDomain,
+                nameServer: nameServerData, 
+            }),
+        });
+
+        if (response.ok) {
+            await response.json();
+            alert("Setup was successful!");
+
+            window.location.reload(); 
+        } else {
+            const errorResult = await response.json();
+            alert("Error: " + errorResult.error);
+            console.error("Error:", errorResult.error);
+            window.location.reload(); 
+        }
+    } catch (error) {
+        alert("An error occurred while sending the POST request: " + error);
+        console.error("An error occurred while sending the POST request:", error);
+        window.location.reload(); 
+    } finally {
+        if (iconElement) {
+            // Hide the icon and stop the spin after the request is complete
+            iconElement.classList.remove("icon-spin");
+            iconElement.classList.add("hidden");
+        }
+    }
+}
+}
+
+document.addEventListener("astro:page-load", setupModalEventListeners);
+
+document.addEventListener("DOMContentLoaded", setupModalEventListeners);
+</script>

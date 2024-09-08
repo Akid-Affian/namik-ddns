@@ -1,0 +1,122 @@
+---
+import { verifySession } from "../lib/verifySession";
+import db from "../lib/db";
+import { getCookieValue } from "../lib/cookies";
+import { format } from "timeago.js";
+import type { User } from "../types/User";
+import { Icon } from "astro-icon/components";
+import { cacheManager } from "../lib/cacheManager"; 
+import type { UserIdResult } from "../types/UserIdResult";
+
+const cookies = Astro.request.headers.get("cookie") || "";
+const authToken = getCookieValue(cookies, "auth_token");
+let user: User | undefined = undefined;
+
+if (authToken && verifySession(authToken)) {
+    // Fetch the userId using the authToken, and type the result
+    const userIdResult = db
+        .prepare("SELECT id FROM users WHERE auth_token = ?")
+        .get(authToken) as UserIdResult | undefined;
+
+    if (userIdResult) {
+        const userId = userIdResult.id;
+
+        const userDashboardInfo = cacheManager.getCache(
+            "userDashboardInfo",
+            180,
+        );
+
+        user = userDashboardInfo.get(userId) as User | undefined;
+
+        if (user) {
+        } else {
+            user = db
+                .prepare(
+                    "SELECT username, api_key, account_created_at, api_key_created_at, role FROM users WHERE id = ?",
+                )
+                .get(userId) as User | undefined;
+
+            if (user) {
+                userDashboardInfo.set(userId, user);
+            }
+        }
+    }
+}
+
+const username = user?.username || "Guest";
+const apiKey = user?.api_key || "N/A";
+const role = user?.role || "Guest";
+const accountCreatedAt = user?.account_created_at
+    ? format(user.account_created_at)
+    : "Unknown";
+const apiKeyCreatedAt = user?.api_key_created_at
+    ? format(user.api_key_created_at)
+    : "Unknown";
+---
+
+<main class="p-6 flex justify-center items-center dashboard-container">
+    <div class="p-6 rounded-lg shadow-lg w-full max-w-6xl bg-[#2C3333]">
+        <h1 class="text-white text-xl md:text-2xl text-center mb-4">
+            DDNS Dashboard
+        </h1>
+        <p class="text-lg text-center mt-3">
+            <span class="text-white font-semibold">Username: </span>
+            <span class="text-gray-200">{username}</span>
+        </p>
+        <p class="text-lg text-center mt-3">
+            <span class="text-white font-semibold">Role: </span>
+            <span class="text-gray-200">{role}</span>
+        </p>
+        <p class="text-lg text-center mt-3 flex items-center justify-center">
+            <span class="text-white font-semibold mr-2">API key:</span>
+            <span id="apiKeyDisplay" class="text-gray-200 mr-2">{apiKey}</span>
+            <button
+                id="regenerateApiKey"
+                class="flex items-center text-white bg-slate-500 px-2 py-1 rounded-md text-sm hover:bg-slate-600 transition-colors"
+            >
+                <Icon name="ph:arrows-clockwise-bold" size={18} />
+                <span class="ml-1">Generate new</span>
+            </button>
+        </p>
+        <p class="text-lg text-center mt-3">
+            <span class="text-white font-semibold">API key created: </span>
+            <span id="apiKeyCreatedAt" class="text-gray-200"
+                >{apiKeyCreatedAt}</span
+            >
+        </p>
+
+        <p class="text-lg text-center mt-3">
+            <span class="text-white font-semibold">Account created: </span>
+            <span class="text-gray-200">{accountCreatedAt}</span>
+        </p>
+    </div>
+</main>
+
+<script>
+    import {
+        initApiKeyRegeneration,
+        resetEventListenerFlag,
+    } from "../scripts/apiKeyRegeneration";
+
+    function setupDashboard() {
+        if (document.querySelector(".dashboard-container")) {
+            initApiKeyRegeneration();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", setupDashboard);
+    document.addEventListener("astro:page-load", setupDashboard);
+
+    document.addEventListener("astro:before-swap", () => {
+        const regenerateButton = document.getElementById(
+            "regenerateApiKey",
+        ) as HTMLButtonElement | null;
+        if (regenerateButton) {
+            regenerateButton.removeEventListener(
+                "click",
+                initApiKeyRegeneration,
+            );
+            resetEventListenerFlag();
+        }
+    });
+</script>

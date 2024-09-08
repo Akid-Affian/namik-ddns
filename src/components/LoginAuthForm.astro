@@ -1,0 +1,43 @@
+<form
+    method="POST"
+    class="p-6 rounded-lg shadow-lg w-full max-w-md bg-[#2C3333]"
+>
+    <div class="mb-4">
+        <label for="username" class="block text-gray-200 text-base mb-2">
+            Username
+        </label>
+        <input
+            type="text"
+            id="username"
+            name="username"
+            class="w-full p-3 rounded-md bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2b5944]"
+            placeholder="Enter your username"
+            required
+        />
+    </div>
+    <div class="mb-6">
+        <label
+            for="password"
+            class="block text-gray-200 text-base font-semibold mb-2"
+        >
+            Password
+        </label>
+        <input
+            type="password"
+            id="password"
+            name="password"
+            class="w-full p-3 rounded-md bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2b5944]"
+            placeholder="Enter your password"
+            required
+        />
+    </div>
+    <div class="flex items-center justify-between">
+        <button
+            id="loginButton"
+            type="submit"
+            class="w-full bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md font-semibold"
+        >
+            Login
+        </button>
+    </div>
+</form>

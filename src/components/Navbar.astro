@@ -1,0 +1,123 @@
+---
+import { Icon } from "astro-icon/components";
+import "@fontsource/poppins";
+import { getUserRole } from "../lib/checkUserRole"; 
+import { getAppConfig } from "../lib/appConfig"; 
+
+let appConfig = null;
+
+try {
+    appConfig = getAppConfig();
+} catch (error) {
+    console.error("Failed to fetch app-config:", error);
+}
+
+// Check if web registration is enabled
+const enableWebRegistration = appConfig?.enable_web_registration === 1;
+
+let userRole = await getUserRole(Astro);
+
+let isAdminOrSuperAdmin = userRole === "Admin" || userRole === "Super-Admin";
+
+// Check if the first_time_setup is 0 (false)
+const showSetupNav = appConfig?.first_time_setup === 1;
+---
+
+<style>
+    nav a {
+        font-family: "Poppins", sans-serif;
+    }
+</style>
+
+<nav class="bg-[#2C3333] p-4 flex flex-wrap justify-between items-center">
+    <a
+        href="/"
+        class="text-white text-xl font-semibold w-full sm:w-auto mb-4 sm:mb-0"
+    >
+        Namik-DDNS
+    </a>
+
+    <div class="flex flex-wrap gap-4 w-full sm:w-auto">
+        <a
+            href="/"
+            class="flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
+        >
+            <Icon name="ph:house" class="mr-2" />
+            <span>Home</span>
+        </a>
+
+        <a
+            href="/spec"
+            class="flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
+        >
+            <Icon name="ph:file-text" class="mr-2" />
+            <span>Spec</span>
+        </a>
+
+        {
+            showSetupNav && (
+                <a
+                    href="/setup"
+                    class="flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
+                >
+                    <Icon name="ph:read-cv-logo" class="mr-2" />
+                    <span>Setup</span>
+                </a>
+            )
+        }
+
+        <a
+            href="/dashboard"
+            class="dashboard-link flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
+        >
+            <Icon name="ph:gauge" class="mr-2" />
+            <span>Dashboard</span>
+        </a>
+
+        <a
+            href="/admin"
+            class={isAdminOrSuperAdmin
+                ? "admin-link flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
+                : "admin-link hidden"}
+        >
+            <Icon name="ph:squares-four" class="mr-2" />
+            <span>Admin</span>
+        </a>
+
+        <button
+            data-logout
+            class="logout-button flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
+        >
+            <Icon name="ph:sign-out" class="mr-2" />
+            <span>Logout</span>
+        </button>
+
+        <a
+            href="/login"
+            class="login-link flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
+        >
+            <Icon name="ph:sign-in" class="mr-2" />
+            <span>Login</span>
+        </a>
+
+        {
+            enableWebRegistration && (
+                <a
+                    href="/register"
+                    class="register-link flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
+                >
+                    <Icon name="ph:user-plus" class="mr-2" />
+                    <span>Register</span>
+                </a>
+            )
+        }
+    </div>
+</nav>
+
+<script>
+    import { initNavbarSessionCheck } from "../scripts/navbarSessionCheck";
+    initNavbarSessionCheck();
+
+    import { initLogoutButton } from "../scripts/logoutButton";
+    document.addEventListener("astro:page-load", initLogoutButton);
+</script>

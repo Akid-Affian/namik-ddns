@@ -1,0 +1,58 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<div
+    id="editIpModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 invisible opacity-0 transition-opacity duration-300"
+>
+    <div class="bg-[#2C3333] rounded-lg shadow-lg p-8 max-w-lg w-full">
+        <h2 id="modalTitle" class="text-xl font-semibold mb-4 text-gray-100">
+            Edit IP Address
+        </h2>
+        <label class="block mb-4 text-gray-100">
+            IP Addresses (One IP per line):
+            <textarea
+                id="modalIpInput"
+                class="w-full px-3 py-2 border rounded mt-4 text-black"
+                rows="5"
+                placeholder="Enter IP addresses"></textarea>
+        </label>
+        <div class="flex justify-end">
+            <button
+                id="updateIpButton"
+                class="bg-[#3E7059] hover:bg-[#2b5944] text-white px-4 py-2 rounded mr-2"
+            >
+                Update
+            </button>
+            <button
+                id="getMyIpButton"
+                class="bg-[#5f4c7d] hover:bg-[#493a61] text-white px-4 py-2 rounded mr-2 flex items-center"
+            >
+                <Icon
+                    name="svg-spinners:180-ring-with-bg"
+                    class="hidden"
+                    size={20}
+                />
+                <span class="ml-2">Get My IP</span>
+            </button>
+            <button
+                id="closeModalButton"
+                class="bg-gray-600 text-white px-4 py-2 rounded"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    import {
+        initIpModalFunctionality,
+        cleanUpIpModalFunctionality,
+    } from "../scripts/update-ip-modal/ipModalEventHandlers";
+
+    document.addEventListener("astro:before-swap", cleanUpIpModalFunctionality);
+    document.addEventListener("astro:page-load", initIpModalFunctionality);
+    document.addEventListener("astro:after-swap", initIpModalFunctionality);
+</script>

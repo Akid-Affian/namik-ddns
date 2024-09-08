@@ -1,0 +1,202 @@
+---
+import Layout from "../components/Layout.astro";
+import db from "../lib/db";
+import { verifySession } from "../lib/verifySession";
+import { getUserRole } from "../lib/checkUserRole";
+import { formatTimestamp } from "../lib/formatTimestamp";
+import { getCookieValue } from "../lib/cookies";
+import { cacheManager } from "../lib/cacheManager";
+import type { User, AggregatedUser } from "../types/User";
+import AddUserModal from "../components/AddUserModal.astro";
+import DeleteUserModal from "../components/DeleteUserModal.astro";
+import ModifyUserRoleModal from "../components/ModifyUserRoleModal.astro";
+import AdminLogsCard from "../components/AdminLogsCard.astro";
+
+const cookies = Astro.request?.headers.get("cookie") || "";
+const authToken = getCookieValue(cookies, "auth_token");
+
+if (!authToken || !verifySession(authToken)) {
+    return Astro.redirect("/");
+}
+
+const userRole = await getUserRole(Astro);
+
+// Ensure only 'Admin' and 'Super-Admin' have access to this page
+if (userRole !== "Admin" && userRole !== "Super-Admin") {
+    return Astro.redirect("/");
+}
+
+let cachedUsers = cacheManager
+    .getCache("allUsers", 180)
+    .get("allUsersTable") as AggregatedUser[];
+
+if (!cachedUsers) {
+    let users: User[] = db
+        .prepare(
+            `
+            SELECT 
+                u.id,
+                u.username, 
+                u.password,
+                u.role,    
+                d.domain_name, 
+                u.auth_token_created_at, 
+                u.auth_token,
+                u.api_key,
+                u.account_created_at,
+                u.api_key_created_at
+            FROM users u
+            LEFT JOIN domains d ON u.id = d.user_id
+            ORDER BY u.username;
+            `,
+        )
+        .all() as User[];
+
+    // Aggregate domains by user
+    let userMap = new Map<string, any>();
+
+    users.forEach((user) => {
+        if (userMap.has(user.username)) {
+            let existingUser = userMap.get(user.username);
+            if (user.domain_name) {
+                existingUser.domains.push(user.domain_name);
+            }
+        } else {
+            userMap.set(user.username, {
+                ...user,
+                domains: user.domain_name ? [user.domain_name] : [],
+            });
+        }
+    });
+
+    cachedUsers = Array.from(userMap.values());
+
+    // Cache the result with a TTL of 180 seconds
+    cacheManager.getCache("allUsers", 180).set("allUsersTable", cachedUsers);
+} else {
+    console.log("Loaded users from cache");
+}
+---
+
+<Layout title="Admin">
+    <main class="flex justify-center items-center mb-8 admin-container p-6">
+        <div class="p-6 rounded-lg shadow-lg w-full max-w-6xl bg-[#2C3333]">
+            <h1 class="text-white text-xl md:text-2xl text-center mb-4">
+                Admin Dashboard
+            </h1>
+            <div class="flex justify-between items-center mb-6 w-full gap-2">
+                <div class="w-full max-w-xs">
+                    <input
+                        type="text"
+                        id="searchUser"
+                        placeholder="Search User"
+                        class="w-full px-4 py-2 rounded-md bg-[#1f2a2a] text-white border border-[#3E7059] focus:outline-none focus:ring-2 focus:ring-[#3E7059]"
+                    />
+                </div>
+
+                <div class="space-x-2">
+                    <button
+                        id="modifyUserRoleButton"
+                        class={`bg-blue-600 ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-blue-800 text-gray-100 px-4 py-2 rounded-md`}
+                    >
+                        Modify Role
+                    </button>
+                    <button
+                        id="deleteUserButton"
+                        class="bg-red-600 hover:bg-red-800 text-gray-100 px-4 py-2 rounded-md"
+                    >
+                        Delete User
+                    </button>
+                    <button
+                        id="addUserButton"
+                        class="bg-[#3E7059] hover:bg-[#2b5944] text-gray-100 px-4 py-2 rounded-md"
+                    >
+                        Add User
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-[#2C3333] text-white">
+                    <thead>
+                        <tr class="bg-[#3E7059]">
+                            <th class="py-2 px-4 text-left w-1/5">User</th>
+                            <th class="py-2 px-4 text-left w-2/5"
+                                >Domains Registered</th
+                            >
+                            <th class="py-2 px-4 text-left w-1/8">Role</th>
+                            <th class="py-2 px-4 text-left w-1/5">Last Login</th
+                            >
+                            <th class="py-2 px-4 text-left w-1/8">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allUsersTable">
+                        {
+                            cachedUsers.length > 0 ? (
+                                cachedUsers.map((user: AggregatedUser) => {
+                                    return (
+                                        <tr
+                                            class="border-b border-gray-700"
+                                            data-user-id={user.id}
+                                        >
+                                            <td class="py-2 px-4">
+                                                {user.username}
+                                            </td>
+                                            <td class="py-2 px-4">
+                                                <ul class="list-disc list-inside">
+                                                    {user.domains.length > 0 ? (
+                                                        user.domains.map(
+                                                            (
+                                                                domain: string,
+                                                            ) => (
+                                                                <li>
+                                                                    {domain}
+                                                                </li>
+                                                            ),
+                                                        )
+                                                    ) : (
+                                                        <li>
+                                                            No domains
+                                                            registered
+                                                        </li>
+                                                    )}
+                                                </ul>
+                                            </td>
+                                            <td class="py-2 px-4">
+                                                {user.role}
+                                            </td>
+                                            <td class="py-2 px-4">
+                                                {formatTimestamp(
+                                                    user.auth_token_created_at,
+                                                )}
+                                            </td>
+                                            <td class="py-2 px-4">Active</td>
+                                        </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        No users found
+                                    </td>
+                                </tr>
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <AdminLogsCard />
+
+    <AddUserModal />
+    <DeleteUserModal />
+    <ModifyUserRoleModal />
+</Layout>
+
+<script>
+    import { initRedirectIfNotLoggedIn } from "../scripts/redirectIfNotLoggedIn";
+
+    initRedirectIfNotLoggedIn();
+</script>
