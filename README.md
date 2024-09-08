@@ -5,9 +5,9 @@
 
 A complete self-hosted DDNS solution alternative to DuckDNS.
 
-![Home page](https://raw.githubusercontent.com/Akid-Affian/namik-ddns/main/image1.png)
+![Home page](https://raw.githubusercontent.com/Akid-Affian/namik-ddns/main/public/image1.png)
 
-![Dashboard page](https://raw.githubusercontent.com/Akid-Affian/namik-ddns/main/image2.png)
+![Dashboard page](https://raw.githubusercontent.com/Akid-Affian/namik-ddns/main/public/image2.png)
 
 # Self-Hosting
 Requirements
