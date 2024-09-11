@@ -10,11 +10,9 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /namik-ddns
 
 COPY package*.json ./
-
 RUN npm ci --only=production
 
 COPY . .
-
 RUN npm run build
 
 FROM node:20.17-slim
