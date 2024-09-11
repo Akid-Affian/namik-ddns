@@ -1,5 +1,5 @@
 ---
-import { Icon } from "astro-icon/components";
+import Icon from "./Icon.astro";
 import "@fontsource/poppins";
 import { getUserRole } from "../lib/checkUserRole"; 
 import { getAppConfig } from "../lib/appConfig"; 
@@ -42,7 +42,7 @@ const showSetupNav = appConfig?.first_time_setup === 1;
             href="/"
             class="flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
         >
-            <Icon name="ph:house" class="mr-2" />
+            <Icon name="house" size={18} class="mr-2" />
             <span>Home</span>
         </a>
 
@@ -50,7 +50,7 @@ const showSetupNav = appConfig?.first_time_setup === 1;
             href="/spec"
             class="flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
         >
-            <Icon name="ph:file-text" class="mr-2" />
+            <Icon name="file-text" size={18} class="mr-2" />
             <span>Spec</span>
         </a>
 
@@ -60,7 +60,7 @@ const showSetupNav = appConfig?.first_time_setup === 1;
                     href="/setup"
                     class="flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
                 >
-                    <Icon name="ph:read-cv-logo" class="mr-2" />
+                    <Icon name="read-cv-logo" size={18} class="mr-2" />
                     <span>Setup</span>
                 </a>
             )
@@ -70,7 +70,7 @@ const showSetupNav = appConfig?.first_time_setup === 1;
             href="/dashboard"
             class="dashboard-link flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
         >
-            <Icon name="ph:gauge" class="mr-2" />
+            <Icon name="gauge" size={18} class="mr-2" />
             <span>Dashboard</span>
         </a>
 
@@ -80,7 +80,7 @@ const showSetupNav = appConfig?.first_time_setup === 1;
                 ? "admin-link flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
                 : "admin-link hidden"}
         >
-            <Icon name="ph:squares-four" class="mr-2" />
+            <Icon name="squares-four" size={18} class="mr-2" />
             <span>Admin</span>
         </a>
 
@@ -88,7 +88,7 @@ const showSetupNav = appConfig?.first_time_setup === 1;
             data-logout
             class="logout-button flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
         >
-            <Icon name="ph:sign-out" class="mr-2" />
+            <Icon name="sign-out" size={18} class="mr-2" />
             <span>Logout</span>
         </button>
 
@@ -96,7 +96,7 @@ const showSetupNav = appConfig?.first_time_setup === 1;
             href="/login"
             class="login-link flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
         >
-            <Icon name="ph:sign-in" class="mr-2" />
+            <Icon name="sign-in" size={18} class="mr-2" />
             <span>Login</span>
         </a>
 
@@ -106,7 +106,7 @@ const showSetupNav = appConfig?.first_time_setup === 1;
                     href="/register"
                     class="register-link flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
                 >
-                    <Icon name="ph:user-plus" class="mr-2" />
+                    <Icon name="user-plus" size={18} class="mr-2" />
                     <span>Register</span>
                 </a>
             )

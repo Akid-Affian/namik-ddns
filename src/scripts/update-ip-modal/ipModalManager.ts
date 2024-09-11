@@ -86,12 +86,13 @@ export const closeIpModal = (): void => {
 export const fetchUserIpAddress = async (): Promise<void> => {
     if (!ipModalElements.getMyIpButton) return;
 
-    const spinner = ipModalElements.getMyIpButton.querySelector("svg");
+    // Update to target the element with class 'spinner-icon'
+    const spinner = ipModalElements.getMyIpButton.querySelector(".spinner-icon");
     const buttonText = ipModalElements.getMyIpButton.querySelector("span");
 
     if (spinner && buttonText) {
-        spinner.classList.remove("hidden"); // Show spinner
-        buttonText.classList.add("ml-2"); // Add margin when spinner is visible
+        spinner.classList.remove("hidden");
+        buttonText.classList.add("ml-2");
     }
 
     try {
@@ -113,10 +114,11 @@ export const fetchUserIpAddress = async (): Promise<void> => {
         alert("Failed to fetch IP address. Please try again later.");
     } finally {
         if (spinner && buttonText) {
-            spinner.classList.add("hidden"); // Hide spinner
-            buttonText.classList.remove("ml-2"); // Remove margin when spinner is hidden
+            spinner.classList.add("hidden");
+            buttonText.classList.remove("ml-2");
         }
     }
 };
+
 
 

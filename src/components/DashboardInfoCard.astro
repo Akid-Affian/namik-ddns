@@ -4,7 +4,7 @@ import db from "../lib/db";
 import { getCookieValue } from "../lib/cookies";
 import { format } from "timeago.js";
 import type { User } from "../types/User";
-import { Icon } from "astro-icon/components";
+import Icon from "./Icon.astro";
 import { cacheManager } from "../lib/cacheManager"; 
 import type { UserIdResult } from "../types/UserIdResult";
 
@@ -74,7 +74,7 @@ const apiKeyCreatedAt = user?.api_key_created_at
                 id="regenerateApiKey"
                 class="flex items-center text-white bg-slate-500 px-2 py-1 rounded-md text-sm hover:bg-slate-600 transition-colors"
             >
-                <Icon name="ph:arrows-clockwise-bold" size={18} />
+                <Icon name="arrows-clockwise-bold" size={18} />
                 <span class="ml-1">Generate new</span>
             </button>
         </p>

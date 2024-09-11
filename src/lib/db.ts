@@ -64,6 +64,9 @@ db.exec(`
   );
 `);
 
+// Check if there are any users in the `users` table
+const usersExist = db.prepare(`SELECT 1 FROM users LIMIT 1`).get();
+
 const rowExists = db.prepare(`SELECT 1 FROM app_config WHERE id = 1 LIMIT 1`).get();
 if (!rowExists) {
   db.exec(`
@@ -75,7 +78,6 @@ if (!rowExists) {
 if (baseDomain) {
   const now = Date.now();
 
-  // Fetch current base domain and cast to AppConfig type
   const currentBaseDomain = db.prepare(`SELECT base_domain FROM app_config WHERE id = 1`).get() as { base_domain: string | null };
 
   if (!currentBaseDomain.base_domain) {
@@ -113,17 +115,26 @@ if (baseDomain) {
         insertDnsRecordStmt.run(null, 'ALIAS', nameServers[0], 60, now, now);
       }
 
-      // Create SOA record
       const soaContent = `${baseDomain} hostmaster.${baseDomain} 1 3600 1800 1209600 3600`;
       insertDnsRecordStmt.run(null, 'SOA', soaContent, 3600, now, now);
     }
   }
 } else {
-  db.prepare(`
-    UPDATE app_config
-    SET first_time_setup = 1, updated_at = ?
-    WHERE id = 1
-  `).run(Date.now());
+  // Only set `first_time_setup = 1` if no users exist (i.e., setup hasn't been completed)
+  if (!usersExist) {
+    db.prepare(`
+      UPDATE app_config
+      SET first_time_setup = 1, updated_at = ?
+      WHERE id = 1
+    `).run(Date.now());
+  } else {
+    // If users exist, mark setup as complete (`first_time_setup = 0`)
+    db.prepare(`
+      UPDATE app_config
+      SET first_time_setup = 0, updated_at = ?
+      WHERE id = 1
+    `).run(Date.now());
+  }
 }
 
 export default db;

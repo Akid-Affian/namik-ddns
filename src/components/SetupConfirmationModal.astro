@@ -1,5 +1,5 @@
 ---
-import { Icon } from "astro-icon/components";
+import Icon from "./Icon.astro";
 ---
 
 <div
@@ -18,7 +18,7 @@ import { Icon } from "astro-icon/components";
                 class="bg-[#3E7059] hover:bg-[#2b5944] text-white px-4 py-2 rounded mr-2 flex items-center"
             >
                 <Icon
-                    name="svg-spinners:180-ring-with-bg"
+                    name="180-ring-with-bg"
                     size={20}
                     class="mr-2 hidden icon-spin"
                 />
@@ -94,18 +94,16 @@ function setupModalEventListeners(): void {
         .map(ns => ns.trim()) // Trim whitespace
         .filter(ns => ns !== ""); // Filter out empty lines
 
-    // Prepare nameserver data to send to the backend
     const nameServerData = nameServers.length === 1 ? nameServers[0] : nameServers;
 
-    const iconElement = confirmSetupConfirmationButton?.querySelector("svg");
+    const iconElement = confirmSetupConfirmationButton?.querySelector(".icon-spin");
 
     if (iconElement) {
-        // Show the icon and add the `icon-spin` class to start spinning the icon
         iconElement.classList.remove("hidden");
         iconElement.classList.add("icon-spin");
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000)); 
 
     try {
         const response = await fetch("/api/setup-1", {
@@ -123,8 +121,7 @@ function setupModalEventListeners(): void {
         if (response.ok) {
             await response.json();
             alert("Setup was successful!");
-
-            window.location.reload(); 
+            window.location.reload();
         } else {
             const errorResult = await response.json();
             alert("Error: " + errorResult.error);
@@ -137,7 +134,7 @@ function setupModalEventListeners(): void {
         window.location.reload(); 
     } finally {
         if (iconElement) {
-            // Hide the icon and stop the spin after the request is complete
+            // Hide the spinner and stop spinning after the request is complete
             iconElement.classList.remove("icon-spin");
             iconElement.classList.add("hidden");
         }

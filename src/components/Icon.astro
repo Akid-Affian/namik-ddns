@@ -1,0 +1,39 @@
+---
+import type { Props } from '../types/Props';
+
+const { name, size, class: className = "", fill, stroke } = Astro.props as Props;
+
+if (!name) {
+  throw new Error("Icon name is undefined! Please provide a valid icon name.");
+}
+
+const svgFiles = import.meta.glob('/src/icons/**/*.svg', { query: '?raw' });
+
+async function getSVG(name: string): Promise<string> {
+  const filepath = `/src/icons/${name}.svg`;
+
+  if (!(filepath in svgFiles)) {
+    throw new Error(`SVG file for '${name}' not found at ${filepath}`);
+  }
+
+  const svgModule = await svgFiles[filepath]() as { default: string };
+
+  return svgModule.default;
+}
+
+let svgContent = await getSVG(name);
+
+if (size) {
+  svgContent = svgContent
+    .replace(/width="\d+"/, `width="${size}px"`)
+    .replace(/height="\d+"/, `height="${size}px"`);
+}
+
+const svgAttributes: Record<string, string | undefined> = {
+  class: className,
+  fill,
+  stroke,
+};
+---
+
+<div {...svgAttributes} set:html={svgContent}></div>

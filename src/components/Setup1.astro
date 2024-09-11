@@ -1,5 +1,5 @@
 ---
-import { Icon } from "astro-icon/components";
+import Icon from "./Icon.astro";
 import SetupConfirmationModal from "../components/SetupConfirmationModal.astro";
 import type { AppConfig } from "../types/AppConfig";
 import db from "../lib/db";
@@ -65,7 +65,7 @@ const setupPage1Class: string = appConfig.base_domain ? "hidden" : "flex";
             type="submit"
             class="flex items-center bg-[#3E7059] text-gray-100 hover:bg-[#2b5944] px-4 py-2 rounded-md"
         >
-            <Icon name="ph:read-cv-logo" class="mr-2" />
+            <Icon name="read-cv-logo" size={18} class="mr-2" />
             Save and Continue
         </button>
     </div>
