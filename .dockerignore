@@ -1,2 +1,8 @@
 node_modules
 dist
+dev.db
+prod.db
+dist
+.astro
+README.md
+API-SPEC.md
