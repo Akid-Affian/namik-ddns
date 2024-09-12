@@ -1,0 +1,62 @@
+<div
+    id="modifyAppConfigModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 invisible opacity-0 transition-opacity duration-300"
+>
+    <div class="bg-[#2C3333] rounded-lg shadow-lg p-8 max-w-lg w-full">
+        <h2 id="modalTitle" class="text-xl font-semibold mb-4 text-gray-100">
+            Modify App Config
+        </h2>
+
+        <form id="modifyAppConfigForm" class="space-y-4">
+            <!-- Toggle Enable Web Registration -->
+            <label class="block mb-4 text-gray-100">
+                Enable Web Registration:
+                <select id="enableWebRegistrationSelect" class="w-full px-3 py-2 border rounded mt-2 text-black">
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </label>
+
+            <!-- Auth Token Max Age -->
+            <label class="block mb-4 text-gray-100">
+                Auth Token Max Age (5-60 minutes):
+                <input
+                    type="number"
+                    id="authTokenMaxAgeInput"
+                    class="w-full px-3 py-2 border rounded mt-2 text-black"
+                    min="5"
+                    max="60"
+                    placeholder="Enter token max age"
+                />
+            </label>
+
+            <div class="flex justify-end">
+                <button
+                    type="button"
+                    id="confirmModifyAppConfigButton"
+                    class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded mr-2"
+                >
+                    Confirm
+                </button>
+                <button
+                    type="button"
+                    id="cancelModifyAppConfigButton"
+                    class="bg-gray-600 text-white px-4 py-2 rounded"
+                >
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    import {
+        initModifyAppConfigModalFunctionality,
+        cleanUpModifyAppConfigModalFunctionality,
+    } from "../scripts/modify-app-config-modal/modifyAppConfigModalEventHandlers";
+
+    document.addEventListener("astro:page-load", initModifyAppConfigModalFunctionality);
+    document.addEventListener("astro:before-swap", cleanUpModifyAppConfigModalFunctionality);
+    document.addEventListener("astro:after-swap", initModifyAppConfigModalFunctionality);
+</script>

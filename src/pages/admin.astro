@@ -7,6 +7,7 @@ import { formatTimestamp } from "../lib/formatTimestamp";
 import { getCookieValue } from "../lib/cookies";
 import { cacheManager } from "../lib/cacheManager";
 import type { User, AggregatedUser } from "../types/User";
+import ModifyAppConfigModal from "../components/ModifyAppConfigModal.astro";
 import AddUserModal from "../components/AddUserModal.astro";
 import DeleteUserModal from "../components/DeleteUserModal.astro";
 import ModifyUserRoleModal from "../components/ModifyUserRoleModal.astro";
@@ -95,6 +96,12 @@ if (!cachedUsers) {
                 </div>
 
                 <div class="space-x-2">
+                    <button
+                    id="modifyAppConfigButton"
+                    class={`bg-[#516b92] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#3e5373] text-gray-100 px-4 py-2 rounded-md`}
+                >
+                    Modify App Config
+                </button>
                     <button
                         id="modifyUserRoleButton"
                         class={`bg-blue-600 ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-blue-800 text-gray-100 px-4 py-2 rounded-md`}
@@ -190,6 +197,7 @@ if (!cachedUsers) {
 
     <AdminLogsCard />
 
+    <ModifyAppConfigModal />
     <AddUserModal />
     <DeleteUserModal />
     <ModifyUserRoleModal />

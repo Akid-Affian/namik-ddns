@@ -20,7 +20,7 @@ export const addUser = async (): Promise<void> => {
         const response = await fetch('/api/add-user', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded', 
+                'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: new URLSearchParams({
                 username,
@@ -50,8 +50,7 @@ export const addUser = async (): Promise<void> => {
             alert('User added successfully!');
             closeAddUserModal();
 
-            
-            location.href = location.href;
+            window.location.reload(); 
         } else {
             alert(`Error: ${result.error}`);
         }
