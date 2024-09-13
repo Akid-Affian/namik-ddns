@@ -80,6 +80,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Invalidate the cache for the user's domains
     console.log(`from add-domains invalidate: ${user.id}`);
     cacheManager.invalidateCache('userDomains', user.id.toString());
+    cacheManager.invalidateCache('allUsers', user.id.toString());
 
     return new Response(JSON.stringify({ success: true, message: 'Domain added successfully', domain: fullDomain }), {
       status: 201,
