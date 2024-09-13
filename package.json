@@ -10,7 +10,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "clean": "rimraf dist",
-    "start:prod": "pm2 start ecosystem.config.cjs --env production"
+    "start:prod": "cross-env NODE_ENV=production node ./dist/server/entry.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^8.3.3",
