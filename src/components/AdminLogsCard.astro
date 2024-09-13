@@ -1,21 +1,20 @@
 ---
-import { verifySession } from "../lib/verifySession";
 import { formatTimestamp } from "../lib/formatTimestamp";
 import { getCookieValue } from "../lib/cookies";
 import type { Log } from "../types/Log";
 
 const cookies = Astro.request?.headers.get("cookie") || "";
-const authToken = getCookieValue(cookies, "auth_token");
 
-if (!authToken || !verifySession(authToken)) {
+const isSuperAdmin = getCookieValue(cookies, "superadmin_cookie");
+const isAdmin = getCookieValue(cookies, "admin_cookie");
+
+if (!isSuperAdmin && !isAdmin) {
     return Astro.redirect("/");
 }
 
-// Get the full URL for the current request
 const baseURL = new URL(Astro.request.url).origin;
 const adminLogsURL = `${baseURL}/api/admin-logs`;
 
-// Get the current page from the query parameters (default to 1 if not provided)
 const searchParams = new URL(Astro.request.url).searchParams;
 const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
@@ -30,7 +29,7 @@ const logsResponse = await fetch(adminLogsURL, {
 
 const logsData = await logsResponse.json();
 const adminLogs: Log[] = logsData.logs || [];
-const pagination = logsData.pagination;
+const pagination = logsData.pagination || { currentPage: 1, totalPages: 1 }; 
 ---
 
 <main class="flex justify-center items-center mb-8 admin-logs-container mt-6">
@@ -89,18 +88,15 @@ const pagination = logsData.pagination;
                 >
                     Previous
                 </a>
-                <span class="text-white"
-                    >Page {pagination.currentPage} of {
-                        pagination.totalPages
-                    }</span
-                >
+                <span class="text-white">
+                    Page {pagination.currentPage} of {pagination.totalPages}
+                </span>
                 <a
                     href={pagination.currentPage < pagination.totalPages
                         ? `?page=${pagination.currentPage + 1}`
                         : "#"}
                     class={`bg-[#3E7059] text-white py-2 px-4 rounded ${pagination.currentPage >= pagination.totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
-                    aria-disabled={pagination.currentPage >=
-                        pagination.totalPages}
+                    aria-disabled={pagination.currentPage >= pagination.totalPages}
                 >
                     Next
                 </a>

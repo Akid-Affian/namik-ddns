@@ -1,8 +1,8 @@
 ---
 import Icon from "./Icon.astro";
 import "@fontsource/poppins";
-import { getUserRole } from "../lib/checkUserRole"; 
-import { getAppConfig } from "../lib/appConfig"; 
+import { getAppConfig } from "../lib/appConfig";
+import { getCookieValue } from "../lib/cookies";
 
 let appConfig = null;
 
@@ -15,9 +15,12 @@ try {
 // Check if web registration is enabled
 const enableWebRegistration = appConfig?.enable_web_registration === 1;
 
-let userRole = await getUserRole(Astro);
+const cookies = Astro.request?.headers.get("cookie") || "";
 
-let isAdminOrSuperAdmin = userRole === "Admin" || userRole === "Super-Admin";
+const isSuperAdmin = getCookieValue(cookies, "superadmin_cookie");
+const isAdmin = getCookieValue(cookies, "admin_cookie");
+
+let isAdminOrSuperAdmin = isSuperAdmin || isAdmin;
 
 // Check if the first_time_setup is 0 (false)
 const showSetupNav = appConfig?.first_time_setup === 1;

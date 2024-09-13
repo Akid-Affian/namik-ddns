@@ -37,7 +37,6 @@ export async function loginUser(formData: FormData): Promise<LoginResult> {
             return { success: false, message: "Invalid username or password" };
         }
 
-        // Generate a session UUID
         const authToken = crypto.randomUUID();
 
         // Get the current timestamp
@@ -49,11 +48,16 @@ export async function loginUser(formData: FormData): Promise<LoginResult> {
             WHERE id = ?
         `).run(authToken, createdAt, user.id);
 
-        // Invalidate all entries in the "allUsers" cache upon successful login
+        // Invalidate all related caches
         cacheManager.invalidateAllCacheEntries('allUsers');
         cacheManager.invalidateAllCacheEntries('userRoles');
 
-        return { success: true, message: "Login successful", authToken };
+        return { 
+            success: true, 
+            message: "Login successful", 
+            authToken, 
+            role: user.role
+        };
     } catch (error) {
         console.error(error);
         return { success: false, message: "An error occurred during login" };
