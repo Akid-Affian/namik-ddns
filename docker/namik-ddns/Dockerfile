@@ -2,6 +2,7 @@ FROM node:20.17-slim AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    python3 \
     git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -13,7 +14,7 @@ RUN npm ci --only=production
 COPY . .
 RUN npm run build
 
-FROM node:20.17-slim
+FROM gcr.io/distroless/nodejs20-debian12
 
 WORKDIR /namik-ddns
 
@@ -23,4 +24,4 @@ COPY --from=build /namik-ddns/dist /namik-ddns/dist
 
 EXPOSE 4321
 
-CMD ["node", "./dist/server/entry.mjs"]
+CMD ["./dist/server/entry.mjs"]

@@ -1,4 +1,6 @@
 import Database from 'better-sqlite3';
+import fs from 'fs';
+import path from 'path';
 
 const baseDomain = process.env.BASE_DOMAIN || null;
 let nameServers = process.env.NAMESERVERS ? process.env.NAMESERVERS.split(',') : [];
@@ -9,8 +11,24 @@ if (nameServers.length > 6) {
   nameServers = nameServers.slice(0, 6);  // Truncate to the first 6 nameservers
 }
 
+const dataDir = path.join(process.cwd(), 'data');
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir);
+}
+
+const devDir = path.join(dataDir, 'dev');
+const prodDir = path.join(dataDir, 'prod');
+if (!fs.existsSync(devDir)) {
+  fs.mkdirSync(devDir);
+}
+if (!fs.existsSync(prodDir)) {
+  fs.mkdirSync(prodDir);
+}
+
 const dbName = process.env.NODE_ENV === 'production' ? 'prod.db' : 'dev.db';
-const db = new Database(dbName);
+const dbPath = process.env.NODE_ENV === 'production' ? path.join(prodDir, dbName) : path.join(devDir, dbName);
+
+const db = new Database(dbPath);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
