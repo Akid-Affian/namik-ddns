@@ -1,5 +1,5 @@
 services:
-  # backup docker-compose.yml
+  # backup
   namik-ddns:
     build:
       context: ../
@@ -16,7 +16,6 @@ services:
     networks:
       - pdns-network
 
-  # PowerDNS service for DNS resolution.
   powerdns:
     build:
       context: ./powerdns
@@ -49,3 +48,11 @@ services:
     networks:
       - pdns-network
     restart: always
+
+networks:
+  pdns-network:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
