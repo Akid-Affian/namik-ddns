@@ -105,8 +105,27 @@ export const POST: APIRoute = async ({ request }) => {
       `);
       updateConfigStmt.run(enableWebRegistration, authTokenMaxAge, Date.now());
 
-      // Invalidate cache for app config
+      // Translate the values for logging
+      const enableWebRegistrationText = enableWebRegistration === '1' ? 'Web registration enabled' : 'Web registration disabled';
+      const authTokenMaxAgeText = `Auth token lifespan set to ${authTokenMaxAge} minutes`;
+
+    // Log the action in the admin_logs table
+    const logActionStmt = db.prepare(`
+  INSERT INTO admin_logs (admin_username, action, target_username, details, timestamp) 
+  VALUES (?, ?, ?, ?, ?)
+`);
+logActionStmt.run(
+  currentUser.username,
+  'modify-app-config',
+  null,
+  `${enableWebRegistrationText}, ${authTokenMaxAgeText}`,
+  Date.now()
+);
+
+
+
       cacheManager.invalidateAllCacheEntries('appConfig');
+      cacheManager.invalidateAllCacheEntries('adminLogs');
     })();
 
     return new Response(JSON.stringify({ success: true, message: 'App config updated successfully' }), {

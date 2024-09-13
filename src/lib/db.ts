@@ -49,7 +49,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     admin_username TEXT NOT NULL,
     action TEXT NOT NULL,
-    target_username TEXT NOT NULL,
+    target_username TEXT,
     details TEXT,
     timestamp INTEGER NOT NULL
   );
