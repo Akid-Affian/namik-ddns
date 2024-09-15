@@ -3,5 +3,6 @@ export interface Props {
     size?: number;       
     class?: string;  
     fill?: string;       
-    stroke?: string;     
+    stroke?: string;  
+    rotation?: number;   
   }

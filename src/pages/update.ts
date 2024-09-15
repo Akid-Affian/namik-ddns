@@ -1,5 +1,7 @@
+// This file is placed here to mimic the DuckDNS API structure.
+
 import type { APIRoute } from 'astro';
-import db from '../lib/db';
+import { db } from '../lib/db';
 import { cacheManager } from "../lib/cacheManager";
 import type { User } from '../types/User';
 import type { Domain } from '../types/Domain';

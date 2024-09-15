@@ -1,4 +1,4 @@
-import db from "../../lib/db";
+import { db, backupDatabase } from "../../lib/db";
 import { hashPassword } from "../../lib/auth";
 import crypto from 'crypto';
 import type { APIRoute } from 'astro';
@@ -85,6 +85,9 @@ export const POST: APIRoute = async ({ request }) => {
         cacheManager.invalidateAllCacheEntries('userRoles');
         cacheManager.invalidateAllCacheEntries('allUsers');
         cacheManager.invalidateAllCacheEntries('userDashboardInfo');
+
+        // Call the backupDatabase function after successful registration
+        backupDatabase();
 
         return new Response(
             JSON.stringify({ success: true, message: "Super-Admin registered successfully and first-time setup is now complete." }),

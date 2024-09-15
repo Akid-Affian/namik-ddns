@@ -7,8 +7,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4321
-      BASE_DOMAIN: example.com
-      NAMESERVERS: ns.example2.com
+      BASE_DOMAIN: example.com # <<< Change this to your domain
+      NAMESERVERS: ns.example2.com # <<< Change this to your nameserver (can be multiple separated by comma)
     ports:
       - "4321:4321"
     restart: always
@@ -16,6 +16,7 @@ services:
       - pdns-network
     volumes:
       - prod_db_data:/namik-ddns/data
+      - prod_db_backups:/namik-ddns/backups
 
   powerdns:
     build:
@@ -35,8 +36,8 @@ services:
     image: caddy:latest
     container_name: caddy
     environment:
-      EMAIL: example@email.com
-      BASE_DOMAIN: example.com
+      EMAIL: example@email.com # <<< Change this to your email
+      BASE_DOMAIN: example.com # <<< Change this to your domain
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
@@ -56,5 +57,6 @@ networks:
 
 volumes:
   prod_db_data:
+  prod_db_backups:
   caddy_data:
   caddy_config:

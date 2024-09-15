@@ -1,4 +1,4 @@
-import db from "./db";
+import { db } from "./db";
 import type { UserSession } from "../types/UserSession";
 import { getAppConfig } from "./appConfig";
 

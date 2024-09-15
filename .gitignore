@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 dev.db
 prod.db
+
+# Ignore database backups
+backups/dev.db.backup-*.db
+backups/prod.db.backup-*.db

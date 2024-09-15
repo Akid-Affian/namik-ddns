@@ -1,4 +1,4 @@
-import db from "./db";
+import { db } from "./db";
 import { verifyPassword } from "./auth";
 import crypto from 'crypto';
 import type { User } from "../types/User";

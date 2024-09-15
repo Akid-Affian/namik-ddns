@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import db from '../../lib/db';
+import { db } from '../../lib/db';
 import { cacheManager } from "../../lib/cacheManager";
 import ipaddr from 'ipaddr.js';
 import { getAppConfig } from '../../lib/appConfig'; 

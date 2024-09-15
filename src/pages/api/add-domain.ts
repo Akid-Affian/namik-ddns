@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import db from '../../lib/db';
+import { db } from '../../lib/db';
 import { verifySession } from '../../lib/verifySession';
 import { getCookieValue } from '../../lib/cookies';
 import { getAppConfig } from '../../lib/appConfig';
