@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../lib/db';
-import { cacheManager } from "../../lib/cacheManager";
+import { db } from '../../lib/database/db';
+import { cacheManager } from "../../lib/utils/cacheManager";
 import ipaddr from 'ipaddr.js';
 import { getAppConfig } from '../../lib/appConfig'; 
-import { getIP } from '../../lib/fetch-ip'; 
+import { getIP } from '../../lib/utils/fetch-ip'; 
 import type { User } from '../../types/User';
 import type { Domain } from '../../types/Domain';
 

@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../lib/db';
-import { cacheManager } from '../../lib/cacheManager';
+import { db } from '../../lib/database/db';
+import { cacheManager } from '../../lib/utils/cacheManager';
 
 export const POST: APIRoute = async ({ request }) => {
   const cookies = request.headers.get('cookie');

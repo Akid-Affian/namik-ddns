@@ -1,13 +1,13 @@
 // This file is placed here to mimic the DuckDNS API structure.
 
 import type { APIRoute } from 'astro';
-import { db } from '../lib/db';
-import { cacheManager } from "../lib/cacheManager";
+import { db } from '../lib/database/db';
+import { cacheManager } from "../lib/utils/cacheManager";
 import type { User } from '../types/User';
 import type { Domain } from '../types/Domain';
 import ipaddr from 'ipaddr.js';
 import { getAppConfig } from '../lib/appConfig';
-import { getIP } from '../lib/fetch-ip';  
+import { getIP } from '../lib/utils/fetch-ip';  
 
 export const GET: APIRoute = async ({ request, clientAddress }) => {
 

@@ -1,4 +1,4 @@
-import { getCookieValue } from "./cookies";
+import { getCookieValue } from "./utils/cookies";
 
 export async function getUserRole(Astro: any): Promise<string | null> {
     const cookies = Astro.request.headers.get("cookie") || "";

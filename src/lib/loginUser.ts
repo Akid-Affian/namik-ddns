@@ -1,10 +1,10 @@
-import { db } from "./db";
+import { db } from "./database/db";
 import { verifyPassword } from "./auth";
 import crypto from 'crypto';
 import type { User } from "../types/User";
 import type { LoginResult } from "../types/LoginResult";
 import { getAppConfig } from "./appConfig";  
-import { cacheManager } from "./cacheManager"; 
+import { cacheManager } from "./utils/cacheManager"; 
 
 export async function loginUser(formData: FormData): Promise<LoginResult> {
     const appConfig = getAppConfig();

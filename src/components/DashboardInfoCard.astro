@@ -1,11 +1,11 @@
 ---
 import { verifySession } from "../lib/verifySession";
-import { db } from "../lib/db";
-import { getCookieValue } from "../lib/cookies";
+import { db } from "../lib/database/db";
+import { getCookieValue } from "../lib/utils/cookies";
 import { format } from "timeago.js";
 import type { User } from "../types/User";
 import Icon from "./Icon.astro";
-import { cacheManager } from "../lib/cacheManager"; 
+import { cacheManager } from "../lib/utils/cacheManager"; 
 import type { UserIdResult } from "../types/UserIdResult";
 
 const cookies = Astro.request.headers.get("cookie") || "";

@@ -1,9 +1,9 @@
-import { db, backupDatabase } from "../../lib/db";
+import { db, backupDatabase } from "../../lib/database/db";
 import { hashPassword } from "../../lib/auth";
 import crypto from 'crypto';
 import type { APIRoute } from 'astro';
 import type { AppConfig } from "../../types/AppConfig";
-import { cacheManager } from "../../lib/cacheManager";
+import { cacheManager } from "../../lib/utils/cacheManager";
 
 export const POST: APIRoute = async ({ request }) => {
     try {

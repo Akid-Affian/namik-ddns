@@ -2,7 +2,7 @@
 import Icon from "./Icon.astro";
 import SetupConfirmationModal from "../components/SetupConfirmationModal.astro";
 import type { AppConfig } from "../types/AppConfig";
-import { db } from "../lib/db";
+import { db } from "../lib/database/db";
 
 const appConfig = db
     .prepare(

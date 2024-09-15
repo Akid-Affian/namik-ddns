@@ -1,6 +1,6 @@
-import { db } from "./db";
+import { db } from "./database/db";
 import type { AppConfig } from "../types/AppConfig";
-import { cacheManager } from "./cacheManager";
+import { cacheManager } from "./utils/cacheManager";
 
 export function getAppConfig(): AppConfig {
     const cacheKey = 'appConfig';

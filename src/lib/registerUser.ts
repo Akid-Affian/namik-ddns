@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { db } from "./database/db";
 import { hashPassword } from "./auth";
 import crypto from 'crypto';
 import type { RegistrationResult } from "../types/RegistrationResult";

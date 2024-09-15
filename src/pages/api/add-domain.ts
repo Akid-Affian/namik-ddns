@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../lib/db';
+import { db } from '../../lib/database/db';
 import { verifySession } from '../../lib/verifySession';
-import { getCookieValue } from '../../lib/cookies';
+import { getCookieValue } from '../../lib/utils/cookies';
 import { getAppConfig } from '../../lib/appConfig';
-import { cacheManager } from "../../lib/cacheManager";
+import { cacheManager } from "../../lib/utils/cacheManager";
 import type { User } from '../../types/User';
 
 const subdomainRegex = /^(?!-)[a-z0-9-]{1,63}(?<!-)$/;

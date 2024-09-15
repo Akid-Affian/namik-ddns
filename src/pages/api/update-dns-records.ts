@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../lib/db';
+import { db } from '../../lib/database/db';
 import { verifySession } from '../../lib/verifySession';
-import { getCookieValue } from '../../lib/cookies';
-import { cacheManager } from "../../lib/cacheManager";
+import { getCookieValue } from '../../lib/utils/cookies';
+import { cacheManager } from "../../lib/utils/cacheManager";
 import type { User } from '../../types/User';
 import type { Domain } from '../../types/Domain';
 import ipaddr from 'ipaddr.js';

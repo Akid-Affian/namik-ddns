@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getIP } from '../../lib/fetch-ip';
+import { getIP } from '../../lib/utils/fetch-ip';
 
 export const GET: APIRoute = async ({ clientAddress }) => {
   const ipAddress = getIP({ clientAddress });
