@@ -13,7 +13,7 @@ if (!isSuperAdmin && !isAdmin) {
 }
 
 const baseURL = new URL(Astro.request.url).origin;
-const adminLogsURL = `${baseURL}/api/admin-logs`;
+const adminLogsURL = `${baseURL}/api/admin/admin-logs`;
 
 const searchParams = new URL(Astro.request.url).searchParams;
 const currentPage = parseInt(searchParams.get("page") || "1", 10);

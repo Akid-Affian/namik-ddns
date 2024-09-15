@@ -36,7 +36,7 @@ export const modifyUserRole = async (): Promise<void> => {
         formData.append("userId", userId);
         formData.append("role", selectedRole);
 
-        const response = await fetch("/api/modify-user-role", {
+        const response = await fetch("/api/admin/modify-user-role", {
             method: "POST",
             body: formData,
             headers: {

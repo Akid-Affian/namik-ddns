@@ -9,7 +9,7 @@ export let modifyAppConfigModalElements: {
 // Function to populate form with data from the API
 const populateAppConfigForm = async (): Promise<void> => {
     try {
-        const response = await fetch("/api/modify-app-config");
+        const response = await fetch("/api/admin/modify-app-config");
         const result = await response.json();
 
         if (response.ok && result.success) {

@@ -15,7 +15,7 @@ export function initializeAddDomainButton() {
         }
 
         try {
-            const response = await fetch("/api/add-domain", {
+            const response = await fetch("/api/domains/add-domain", {
                 method: "POST",
                 body: new URLSearchParams({ subdomain: subdomainInput }),
                 headers: {

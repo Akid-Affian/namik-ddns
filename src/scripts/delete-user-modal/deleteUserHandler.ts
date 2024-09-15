@@ -35,7 +35,7 @@ export const deleteUser = async (): Promise<void> => {
         const formData = new URLSearchParams();
         formData.append("userId", userId);
 
-        const response = await fetch("/api/delete-user", {
+        const response = await fetch("/api/admin/delete-user", {
             method: "POST",
             body: formData,
             headers: {

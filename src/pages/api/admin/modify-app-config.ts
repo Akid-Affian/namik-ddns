@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../lib/database/db';
-import { verifySession } from '../../lib/verifySession';
-import { getCookieValue } from '../../lib/utils/cookies';
-import { cacheManager } from '../../lib/utils/cacheManager';
-import type { User } from '../../types/User';
+import { db } from '../../../lib/database/db';
+import { verifySession } from '../../../lib/verifySession';
+import { getCookieValue } from '../../../lib/utils/cookies';
+import { cacheManager } from '../../../lib/utils/cacheManager';
+import type { User } from '../../../types/User';
 
 export const GET: APIRoute = async ({ request }) => {
   const cookies = request.headers.get('cookie') || '';

@@ -106,7 +106,7 @@ function setupModalEventListeners(): void {
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
 
     try {
-        const response = await fetch("/api/setup-1", {
+        const response = await fetch("/api/setup/setup-1", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

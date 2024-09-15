@@ -111,7 +111,7 @@ const setupPage2Class: string = appConfig.base_domain ? "flex" : "hidden";
                     const formData = new FormData(setup2Form);
 
                     try {
-                        const response = await fetch("/api/setup-2", {
+                        const response = await fetch("/api/setup/setup-2", {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",

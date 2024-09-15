@@ -23,7 +23,7 @@ export const modifyAppConfig = async (): Promise<void> => {
         formData.append("enable_web_registration", enableWebRegistration!);
         formData.append("auth_token_max_age", authTokenMaxAge);
 
-        const response = await fetch("/api/modify-app-config", {
+        const response = await fetch("/api/admin/modify-app-config", {
             method: "POST",
             body: formData,
             headers: {

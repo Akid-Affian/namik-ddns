@@ -17,7 +17,7 @@ export const addUser = async (): Promise<void> => {
     }
 
     try {
-        const response = await fetch('/api/add-user', {
+        const response = await fetch('/api/admin/add-user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

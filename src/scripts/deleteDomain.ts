@@ -23,7 +23,7 @@ async function deleteDomain(domainId: string): Promise<void> {
     try {
         const formData = new URLSearchParams();
         formData.append("domainId", domainId);
-        const response = await fetch("/api/delete-domain", {
+        const response = await fetch("/api/domains/delete-domain", {
             method: "POST",
             body: formData,
             headers: {
