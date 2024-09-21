@@ -12,7 +12,7 @@ export function initLogoutButton() {
             isProcessing = true;
             logoutButton.disabled = true;
             try {
-                const response = await fetch("/api/logout", {
+                const response = await fetch("/api/user/logout", {
                     method: "POST",
                 });
                 if (response.ok) {

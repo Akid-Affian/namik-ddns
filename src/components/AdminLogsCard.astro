@@ -1,6 +1,6 @@
 ---
-import { formatTimestamp } from "../lib/utils/formatTimestamp";
-import { getCookieValue } from "../lib/utils/cookies";
+import { formatTimestamp } from "@lib/utils/formatTimestamp";
+import { getCookieValue } from "@lib/utils/cookies";
 import type { Log } from "../types/Log";
 
 const cookies = Astro.request?.headers.get("cookie") || "";

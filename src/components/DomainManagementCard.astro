@@ -22,27 +22,25 @@ if (authToken && verifySession(authToken)) {
         .get(authToken) as User | undefined;
 
     if (user) {
-        
         const cache = cacheManager.getCache("userDomains", 180);
         userDomains = cache.get(user.id) || [];
 
         if (userDomains.length === 0) {
-            
             userDomains = db
                 .prepare(
                     "SELECT id, domain_name, created_at, updated_at FROM domains WHERE user_id = ?",
                 )
                 .all(user.id) as Domain[];
 
-            
             userDomains = userDomains.map((domain) => {
                 const dnsRecords = db
                     .prepare(
-                        "SELECT record_type, content FROM dns_records WHERE domain_id = ?",
+                        "SELECT record_type, content, updated_at FROM dns_records WHERE domain_id = ?",
                     )
                     .all(domain.id) as Array<{
                     record_type: string;
                     content: string;
+                    updated_at: number;
                 }>;
 
                 const aRecords = dnsRecords
@@ -55,20 +53,23 @@ if (authToken && verifySession(authToken)) {
                     .map((record) => record.content)
                     .join(", ");
 
+                // Get the latest updated_at from the DNS records or fall back to domain's updated_at
+                const lastUpdatedAt = dnsRecords.length > 0 
+                    ? dnsRecords.reduce((latest, record) => Math.max(latest, record.updated_at), domain.updated_at)
+                    : domain.updated_at;
 
                 return {
                     ...domain,
                     aRecords,
                     aaaaRecords,
+                    lastUpdatedAt, // Store the latest DNS record or domain update timestamp
                 };
             });
-
 
             cache.set(user.id, userDomains);
         }
     }
 }
-
 
 const baseDomain = appConfig.base_domain;
 ---
@@ -148,7 +149,7 @@ const baseDomain = appConfig.base_domain;
                                     />
                                 </td>
                                 <td class="py-2 px-4">
-                                    {format(domain.updated_at)}
+                                    {format(domain.lastUpdatedAt || new Date())}
                                 </td>
                                 <td class="py-2 px-4">
                                     <button

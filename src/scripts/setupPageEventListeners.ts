@@ -29,16 +29,18 @@ export function setupEventListeners(): void {
             const target = event.target as HTMLInputElement;
             const domain = target.value || "example.com";
 
-            if (domainRegex.test(domain)) {
+            // Check if the domain has only lowercase letters, numbers, and hyphens
+            const isValidDomain = domainRegex.test(domain);
+            const isLowerCase = domain === domain.toLowerCase();
 
+            if (isValidDomain && isLowerCase) {
                 baseDomainSpans.forEach((span) => {
                     span.textContent = domain;
                 });
-                errorMessage.textContent = ""; 
+                errorMessage.textContent = ""; // Clear the error message
             } else {
-
                 errorMessage.textContent =
-                    " Invalid domain format. Please enter a valid domain.";
+                    " Invalid domain format. Only lowercase letters, numbers, and hyphens are allowed.";
             }
         });
     }

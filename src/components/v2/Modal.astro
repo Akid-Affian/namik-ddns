@@ -1,0 +1,120 @@
+---
+const {
+  id,                 // Unique ID for the modal
+  isVisible,          // Control the modal's visibility (true/false)
+  confirmButtonText,  // Label for the confirm button
+  cancelButtonText,   // Label for the cancel button
+  disableFooter = false, // Optional prop to disable the default footer
+} = Astro.props;
+---
+
+<div
+  id={id}
+  class={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${
+    isVisible ? 'visible opacity-100' : 'invisible opacity-0'
+  }`}
+  aria-hidden={!isVisible}
+>
+  <div class="bg-[#2C3333] rounded-lg shadow-lg p-8 max-w-lg w-full">
+    <header class="mb-4">
+      <slot name="header">
+        <h2 class="text-xl font-semibold text-gray-100">Default Modal Title</h2>
+      </slot>
+    </header>
+
+    <section class="mb-4">
+      <slot name="body">
+        <p class="text-gray-100">Default body content. Please provide custom content.</p>
+      </slot>
+    </section>
+
+    <section class="mb-4 text-red-500">
+      <slot name="warning">
+        <p>No warnings.</p>
+      </slot>
+    </section>
+
+    <div class="flex justify-end">
+      {disableFooter ? (
+        <slot name="footer"></slot>
+      ) : (
+        <>
+<button
+  id={id + '-confirm-button'}
+  class={`bg-[#3E7059] hover:bg-[#2b5944] text-white px-4 py-2 ${id}-confirm-button rounded mr-2`}
+>
+  {confirmButtonText}
+</button>
+          <button
+            id={`${id}-cancel-button`}
+            class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded close-modal-button"
+            data-target={id}
+          >
+            {cancelButtonText}
+          </button>
+        </>
+      )}
+    </div>
+  </div>
+</div>
+
+<script>
+// Opens a modal by removing the necessary classes to make it visible
+export function openModal(modalId: string): void {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('invisible', 'opacity-0');
+    modal.classList.add('visible', 'opacity-100');
+  } else {
+    console.error(`Modal with ID ${modalId} not found`);
+  }
+}
+
+// Closes a modal by adding the necessary classes to hide it
+export function closeModal(modalId: string): void {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('visible', 'opacity-100');
+    modal.classList.add('invisible', 'opacity-0');
+  } else {
+    console.error(`Modal with ID ${modalId} not found`);
+  }
+}
+
+// Sets up event listeners on buttons to open or close their respective modals
+export function setupModalListeners(): void {
+  // Remove existing event listeners
+  const oldOpenButtons = document.querySelectorAll('[data-open-modal]');
+  oldOpenButtons.forEach((button) => {
+    const clone = button.cloneNode(true) as HTMLElement;
+    button.parentNode?.replaceChild(clone, button);
+  });
+
+  const oldCloseButtons = document.querySelectorAll('[data-target]');
+  oldCloseButtons.forEach((button) => {
+    const clone = button.cloneNode(true) as HTMLElement;
+    button.parentNode?.replaceChild(clone, button);
+  });
+
+  // Find all elements that can open modals
+  const openModalButtons = document.querySelectorAll('[data-open-modal]');
+  openModalButtons.forEach((button) => {
+    const modalId = button.getAttribute('data-open-modal');
+    if (modalId) {
+      button.addEventListener('click', () => openModal(modalId));
+    }
+  });
+
+  // Find all elements that can close modals
+  const closeModalButtons = document.querySelectorAll('[data-target]');
+  closeModalButtons.forEach((button) => {
+    const modalId = button.getAttribute('data-target');
+    if (modalId) {
+      button.addEventListener('click', () => closeModal(modalId));
+    }
+  });
+}
+
+// Set up event listeners after each page navigation
+document.addEventListener('astro:page-load', setupModalListeners);
+</script>

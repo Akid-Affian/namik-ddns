@@ -5,8 +5,8 @@ import crypto from 'crypto';
 import { migrations } from './migrations';
 import { backupDatabase } from './backup';
 
-const baseDomain = process.env.BASE_DOMAIN || null;
-let nameServers = process.env.NAMESERVERS ? process.env.NAMESERVERS.split(',') : [];
+const baseDomain = process.env.BASE_DOMAIN ? process.env.BASE_DOMAIN.toLowerCase() : null;
+let nameServers = process.env.NAMESERVERS ? process.env.NAMESERVERS.split(',').map(ns => ns.toLowerCase()) : [];
 
 // Enforce a maximum of 6 nameservers
 if (nameServers.length > 6) {

@@ -1,7 +1,7 @@
 {
   "name": "namik-ddns",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "scripts": {
     "dev": "cross-env NODE_ENV=development astro dev",
     "start": "cross-env NODE_ENV=development node ./dist/server/entry.mjs",

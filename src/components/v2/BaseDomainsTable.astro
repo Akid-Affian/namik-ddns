@@ -1,0 +1,104 @@
+---
+import { formatTimestamp } from "@lib/utils/formatTimestamp";
+
+// Fetching data using dynamic origin
+const cookies = Astro.request?.headers.get("cookie") || "";
+
+// Fetch the base domains data
+const baseURL = new URL(Astro.request.url).origin;
+const baseDomainsURL = `${baseURL}/api/v2/base-domains`;
+
+let baseDomain = null;
+let additionalBaseDomains = [];
+
+try {
+  const response = await fetch(baseDomainsURL, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: cookies,
+    },
+  });
+
+  const data = await response.json();
+  if (data.baseDomain) {
+    baseDomain = data.baseDomain;
+  }
+
+  if (data.additionalBaseDomains) {
+    additionalBaseDomains = data.additionalBaseDomains;
+  }
+} catch (error) {
+  console.error("Error fetching base domains:", error);
+}
+
+// Helper function to format nameservers array
+function formatNameservers(nameservers: string[]) {
+  return nameservers.join(', ');
+}
+---
+
+<table class="min-w-full bg-[#2C3333] text-white mt-6">
+    <thead>
+      <tr class="bg-[#3E7059]">
+        <th class="py-2 px-4 text-left w-1/5">Domain</th>
+        <th class="py-2 px-4 text-left w-1/5">Type</th>
+        <th class="py-2 px-4 text-left w-1/5">Nameservers</th>
+        <th class="py-2 px-4 text-left w-1/5">Registration Count</th>
+        <th class="py-2 px-4 text-left w-1/5">Time Ago</th>
+      </tr>
+    </thead>
+    <tbody id="baseDomainTableBody">
+        <!-- Main Base Domain Row -->
+        {baseDomain ? (
+          <tr class="border-b border-gray-700">
+            <td class="py-2 px-4">
+                {baseDomain.domain}
+            </td>
+            <td class="py-2 px-4">
+                Main Base Domain
+            </td>
+            <td class="py-2 px-4">
+                {formatNameservers(baseDomain.nameservers)}
+            </td>
+            <td class="py-2 px-4">
+                {baseDomain.registrationCount === "N/A" ? "N/A" : baseDomain.registrationCount}
+            </td>
+            <td class="py-2 px-4">
+                {baseDomain.createdAt === "N/A" ? "N/A" : formatTimestamp(baseDomain.createdAt)}
+            </td>
+          </tr>
+        ) : (
+          <tr>
+            <td colspan="5" class="py-2 px-4 text-center">No base domain found</td>
+          </tr>
+        )}
+
+        <!-- Additional Base Domain Rows -->
+        {additionalBaseDomains.length > 0 ? (
+          additionalBaseDomains.map((domain: { domain: string; nameservers: string[]; createdAt: string, registrationCount: number }) => (
+            <tr class="border-b border-gray-700">
+              <td class="py-2 px-4">
+                  {domain.domain}
+              </td>
+              <td class="py-2 px-4">
+                  Additional Base Domain
+              </td>
+              <td class="py-2 px-4">
+                  {formatNameservers(domain.nameservers)}
+              </td>
+              <td class="py-2 px-4">
+                  {domain.registrationCount}
+              </td>
+              <td class="py-2 px-4">
+                  {formatTimestamp(domain.createdAt)}
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colspan="5" class="py-2 px-4 text-center">No additional domains found</td>
+          </tr>
+        )}
+    </tbody>
+</table>

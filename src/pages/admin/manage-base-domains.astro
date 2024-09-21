@@ -1,0 +1,96 @@
+---
+import Layout from "@components/Layout.astro";
+import { verifySession } from "@lib/verifySession";
+import { getUserRole } from "@lib/checkUserRole";
+import { getCookieValue } from "@lib/utils/cookies";
+import BaseDomainsTable from "@components/v2/BaseDomainsTable.astro";
+import Modal from "@components/v2/Modal.astro";
+
+const cookies = Astro.request?.headers.get("cookie") || "";
+const authToken = getCookieValue(cookies, "auth_token");
+
+if (!authToken || !verifySession(authToken)) {
+    return Astro.redirect("/");
+}
+
+const userRole = await getUserRole(Astro);
+
+if (userRole !== "Super-Admin") {
+    return Astro.redirect("/");
+}
+---
+
+<Layout title="Manage Base Domains">
+    <main class="flex justify-center items-center mb-8 p-6">
+        <div class="p-6 rounded-lg shadow-lg w-full max-w-6xl bg-[#2C3333]">
+            <h1 class="text-white text-xl md:text-2xl text-center mb-4">
+                Manage Base Domains
+            </h1>
+            <div class="flex flex-col justify-center items-center space-y-6 mb-4">
+                <a
+                    href="/admin"
+                    class="bg-[#2C6D6A] hover:bg-[#265E5A] text-gray-100 px-4 py-2 rounded-md inline-block align-middle"
+                >
+                    Go Back to Admin Dashboard
+                </a>
+                <div class="flex justify-center items-center space-x-4">
+                  <button
+                  data-open-modal="add-base-domain-modal" class="bg-[#3E7059] hover:bg-[#2b5944] text-gray-100 px-4 py-2 rounded-md inline-block align-middle"
+                >
+                  Add New Base Domain
+                </button>
+				<button
+				data-open-modal="" class="bg-[#B52626] hover:bg-[#9C2121] text-gray-100 px-4 py-2 rounded-md inline-block align-middle"
+			>
+				Delete Base Domain
+			</button>
+    </div>
+            </div>
+			<div class="overflow-x-auto">
+			<BaseDomainsTable />
+			</div>
+        </div>
+
+<!-- MODAL -->
+<Modal
+  id="add-base-domain-modal"
+  confirmButtonText="Add Domain"
+  cancelButtonText="Cancel"
+>
+  <h2 slot="header" class="text-xl font-semibold text-gray-100">
+    Add New Base Domain
+  </h2>
+
+  <div slot="body">
+    <p class="text-gray-100">
+      Please input the new base domain:
+    </p>
+    <input
+      type="text"
+      placeholder="Enter base domain"
+      class="domainInput w-full px-3 py-2 border rounded mt-2 text-black"
+    />
+
+    <!-- Textarea for Name Servers with max 6 entries -->
+    <p class="mt-4 mb-2 text-white">Name servers (minimum 1, maximum 6):</p>
+    <textarea
+      rows="6"
+      placeholder="Enter name servers, one per line"
+      class="nameserverTextarea w-full px-3 py-2 border rounded text-black"
+    ></textarea>
+  </div>
+  <p slot="warning" class="text-red-500">
+    Ensure you have entered at least one name server.
+  </p>
+</Modal>
+
+
+    </main>
+
+	<script>
+import { setupAddBaseDomainButtonListener } from "../../scripts/addBaseDomain";
+
+// Set up the event listener once, no need to reattach after navigation
+setupAddBaseDomainButtonListener();
+	</script>
+</Layout>

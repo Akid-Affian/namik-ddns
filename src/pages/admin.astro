@@ -1,5 +1,5 @@
 ---
-import Layout from "../components/Layout.astro";
+import Layout from "@components/Layout.astro";
 import { db } from "../lib/database/db";
 import { verifySession } from "../lib/verifySession";
 import { getUserRole } from "../lib/checkUserRole";
@@ -7,11 +7,11 @@ import { formatTimestamp } from "../lib/utils/formatTimestamp";
 import { getCookieValue } from "../lib/utils/cookies";
 import { cacheManager } from "../lib/utils/cacheManager";
 import type { User, AggregatedUser } from "../types/User";
-import ModifyAppConfigModal from "../components/ModifyAppConfigModal.astro";
-import AddUserModal from "../components/AddUserModal.astro";
-import DeleteUserModal from "../components/DeleteUserModal.astro";
-import ModifyUserRoleModal from "../components/ModifyUserRoleModal.astro";
-import AdminLogsCard from "../components/AdminLogsCard.astro";
+import ModifyAppConfigModal from "@components/ModifyAppConfigModal.astro";
+import AddUserModal from "@components/AddUserModal.astro";
+import DeleteUserModal from "@components/DeleteUserModal.astro";
+import ModifyUserRoleModal from "@components/ModifyUserRoleModal.astro";
+import AdminLogsCard from "@components/AdminLogsCard.astro";
 
 const cookies = Astro.request?.headers.get("cookie") || "";
 const authToken = getCookieValue(cookies, "auth_token");
@@ -95,32 +95,38 @@ if (!cachedUsers) {
                     />
                 </div>
 
-                <div class="space-x-2">
+                <div class="space-x-2 md:space-y-0 space-y-4">
+                    <a
+                        href="/admin/manage-base-domains"
+                        class={`bg-[#2C6D6A] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#265E5A] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
+                    >
+                    Manage Base Domains
+                    </a>
                     <button
-                    id="modifyAppConfigButton"
-                    class={`bg-[#516b92] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#3e5373] text-gray-100 px-4 py-2 rounded-md`}
-                >
-                    Modify App Config
-                </button>
+                        id="modifyAppConfigButton"
+                        class={`bg-[#516b92] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#3e5373] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
+                    >
+                        Modify App Config
+                    </button>
                     <button
                         id="modifyUserRoleButton"
-                        class={`bg-blue-600 ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-blue-800 text-gray-100 px-4 py-2 rounded-md`}
+                        class={`bg-blue-600 ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-blue-800 text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
                     >
                         Modify Role
                     </button>
                     <button
                         id="deleteUserButton"
-                        class="bg-red-600 hover:bg-red-800 text-gray-100 px-4 py-2 rounded-md"
+                        class="bg-red-600 hover:bg-red-800 text-gray-100 px-4 py-2 rounded-md inline-block align-middle"
                     >
                         Delete User
                     </button>
                     <button
                         id="addUserButton"
-                        class="bg-[#3E7059] hover:bg-[#2b5944] text-gray-100 px-4 py-2 rounded-md"
+                        class="bg-[#3E7059] hover:bg-[#2b5944] text-gray-100 px-4 py-2 rounded-md inline-block align-middle"
                     >
                         Add User
                     </button>
-                </div>
+                </div>                
             </div>
 
             <div class="overflow-x-auto">
