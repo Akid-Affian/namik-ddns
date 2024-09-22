@@ -7,11 +7,13 @@ import { cacheManager } from "../lib/utils/cacheManager";
 import { getAppConfig } from "../lib/appConfig";
 import type { Domain } from "../types/Domain";
 import type { User } from "../types/User";
+import Icon from "@components/Icon.astro";
 import { format } from "timeago.js";
 
 const cookies = Astro.request.headers.get("cookie") || "";
 const authToken = getCookieValue(cookies, "auth_token");
 let userDomains: Domain[] = [];
+let additionalDomains: Array<{ id: number; domain_name: string }> = []; // Array for additional domains
 
 const appConfig = getAppConfig();
 
@@ -53,7 +55,6 @@ if (authToken && verifySession(authToken)) {
                     .map((record) => record.content)
                     .join(", ");
 
-                // Get the latest updated_at from the DNS records or fall back to domain's updated_at
                 const lastUpdatedAt = dnsRecords.length > 0 
                     ? dnsRecords.reduce((latest, record) => Math.max(latest, record.updated_at), domain.updated_at)
                     : domain.updated_at;
@@ -62,12 +63,19 @@ if (authToken && verifySession(authToken)) {
                     ...domain,
                     aRecords,
                     aaaaRecords,
-                    lastUpdatedAt, // Store the latest DNS record or domain update timestamp
+                    lastUpdatedAt,
                 };
             });
 
             cache.set(user.id, userDomains);
         }
+
+        // Fetch additional domains from additional_domains table
+        additionalDomains = db
+            .prepare(
+                "SELECT id, domain_name FROM additional_domains"
+            )
+            .all() as Array<{ id: number; domain_name: string }>;
     }
 }
 
@@ -93,10 +101,32 @@ const baseDomain = appConfig.base_domain;
                     id="subdomainInput"
                     class="px-3 py-2 flex-grow focus:outline-none"
                 />
-                <span
-                    class="bg-neutral-900 text-gray-100 px-3 py-2 rounded-r-md md:rounded-none truncate max-w-xs"
-                    >.{baseDomain}</span
-                >
+                <div class="relative inline-block w-full max-w-xs">
+                    {additionalDomains.length > 0 ? (
+                      <div>
+                        <select
+                          id="baseDomainSelect"
+                          class="bg-neutral-900 text-gray-100 px-3 py-2 rounded-r-md md:rounded-none truncate max-w-xs appearance-none pr-10 block w-full"
+                        >
+                          <option value={baseDomain} selected>.{baseDomain}</option>
+                          {additionalDomains.map((domain) => (
+                            <option value={domain.domain_name}>.{domain.domain_name}</option>
+                          ))}
+                        </select>
+                    
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <Icon name="down" size={16} class="text-gray-100" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div class="bg-neutral-900 text-gray-100 px-3 py-2 rounded-md md:rounded-none truncate max-w-xs">
+                          <span id="baseDomainDisplay">.{baseDomain}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
             </div>
             <button
                 id="addDomainButton"

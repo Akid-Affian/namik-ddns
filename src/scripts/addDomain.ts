@@ -14,10 +14,29 @@ export function initializeAddDomainButton() {
             return;
         }
 
+        const baseDomainSelectElement = document.getElementById("baseDomainSelect") as HTMLSelectElement | null;
+        let zone: string | null = null;
+
+        if (baseDomainSelectElement) {
+            const selectedZone = baseDomainSelectElement.value.trim();
+            const defaultBaseDomain = baseDomainSelectElement.options[0].value.trim(); 
+
+            if (selectedZone !== defaultBaseDomain) {
+                zone = selectedZone;
+            }
+        }
+
         try {
+            const formData = new URLSearchParams();
+            formData.append("subdomain", subdomainInput);
+
+            if (zone) {
+                formData.append("zone", zone);
+            }
+
             const response = await fetch("/api/domains/add-domain", {
                 method: "POST",
-                body: new URLSearchParams({ subdomain: subdomainInput }),
+                body: formData,
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
@@ -28,7 +47,6 @@ export function initializeAddDomainButton() {
             if (response.ok) {
                 alert(result.message ?? "Domain added successfully");
                 subdomainInputElement.value = ""; 
-                // Perform a hard refresh
                 location.reload();
             } else {
                 alert(result.error ?? "Failed to add domain");

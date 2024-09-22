@@ -70,19 +70,17 @@ export const GET: APIRoute = async ({ request }) => {
   // Extract the content (nameservers) from the DNS records
   const baseNameservers = baseDomainNameservers.map(record => record.content);
 
-  // Query all additional base domains from the additional_domains table, including created_at and registration_count
   const additionalDomainsStmt = db.prepare(`
-    SELECT domain_name, nameservers, created_at, registration_count
+    SELECT domain_name, nameservers, created_at
     FROM additional_domains
   `);
-  const additionalDomains = additionalDomainsStmt.all() as Array<{ domain_name: string, nameservers: string, created_at: number, registration_count: number }> | undefined;
+  const additionalDomains = additionalDomainsStmt.all() as Array<{ domain_name: string, nameservers: string, created_at: number }> | undefined;
 
   // Parse the nameservers from the JSON stored in the additional_domains table
   const additionalBaseDomains = additionalDomains?.map(domain => ({
     domain: domain.domain_name,
     nameservers: JSON.parse(domain.nameservers),
-    createdAt: domain.created_at, // Return raw UNIX timestamp from database
-    registrationCount: domain.registration_count
+    createdAt: domain.created_at,
   })) || [];
 
   // Construct response data with unique nameservers
@@ -91,7 +89,6 @@ export const GET: APIRoute = async ({ request }) => {
       domain: base_domain,
       nameservers: Array.from(new Set(baseNameservers)), // Ensure nameservers are unique
       createdAt: 'N/A', // No created_at for the base domain
-      registrationCount: 'N/A' // Registration count is not tracked for base domain
     },
     additionalBaseDomains
   };

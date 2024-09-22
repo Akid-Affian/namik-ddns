@@ -9,6 +9,9 @@
       "@lib/*": [
         "src/lib/*"
       ],
+      "@scripts/*": [
+        "src/scripts/*"
+      ],
     }
   }
 }

@@ -41,11 +41,10 @@ function formatNameservers(nameservers: string[]) {
 <table class="min-w-full bg-[#2C3333] text-white mt-6">
     <thead>
       <tr class="bg-[#3E7059]">
-        <th class="py-2 px-4 text-left w-1/5">Domain</th>
-        <th class="py-2 px-4 text-left w-1/5">Type</th>
-        <th class="py-2 px-4 text-left w-1/5">Nameservers</th>
-        <th class="py-2 px-4 text-left w-1/5">Registration Count</th>
-        <th class="py-2 px-4 text-left w-1/5">Time Ago</th>
+        <th class="py-2 px-4 text-left w-1/4">Domain</th>
+        <th class="py-2 px-4 text-left w-1/4">Type</th>
+        <th class="py-2 px-4 text-left w-1/4">Nameservers</th>
+        <th class="py-2 px-4 text-left w-1/4">Time Ago</th>
       </tr>
     </thead>
     <tbody id="baseDomainTableBody">
@@ -62,21 +61,18 @@ function formatNameservers(nameservers: string[]) {
                 {formatNameservers(baseDomain.nameservers)}
             </td>
             <td class="py-2 px-4">
-                {baseDomain.registrationCount === "N/A" ? "N/A" : baseDomain.registrationCount}
-            </td>
-            <td class="py-2 px-4">
                 {baseDomain.createdAt === "N/A" ? "N/A" : formatTimestamp(baseDomain.createdAt)}
             </td>
           </tr>
         ) : (
           <tr>
-            <td colspan="5" class="py-2 px-4 text-center">No base domain found</td>
+            <td colspan="4" class="py-2 px-4 text-center">No base domain found</td>
           </tr>
         )}
 
         <!-- Additional Base Domain Rows -->
         {additionalBaseDomains.length > 0 ? (
-          additionalBaseDomains.map((domain: { domain: string; nameservers: string[]; createdAt: string, registrationCount: number }) => (
+          additionalBaseDomains.map((domain: { domain: string; nameservers: string[]; createdAt: string }) => (
             <tr class="border-b border-gray-700">
               <td class="py-2 px-4">
                   {domain.domain}
@@ -88,16 +84,13 @@ function formatNameservers(nameservers: string[]) {
                   {formatNameservers(domain.nameservers)}
               </td>
               <td class="py-2 px-4">
-                  {domain.registrationCount}
-              </td>
-              <td class="py-2 px-4">
                   {formatTimestamp(domain.createdAt)}
               </td>
             </tr>
           ))
         ) : (
           <tr>
-            <td colspan="5" class="py-2 px-4 text-center">No additional domains found</td>
+            <td colspan="4" class="py-2 px-4 text-center">No additional domains found</td>
           </tr>
         )}
     </tbody>

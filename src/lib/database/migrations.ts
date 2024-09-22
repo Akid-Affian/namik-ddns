@@ -64,7 +64,6 @@ const migrations = [
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           domain_name TEXT NOT NULL UNIQUE,
           nameservers TEXT NOT NULL,
-          registration_count INTEGER NOT NULL DEFAULT 0,
           created_at INTEGER NOT NULL,
           updated_at INTEGER NOT NULL
         );
@@ -101,6 +100,9 @@ const migrations = [
   
         ALTER TABLE app_config
         ADD COLUMN app_version TEXT;
+  
+        ALTER TABLE app_config
+        ADD COLUMN delete_base_domain_enabled INTEGER NOT NULL DEFAULT 0;
   
         COMMIT;
       `);
