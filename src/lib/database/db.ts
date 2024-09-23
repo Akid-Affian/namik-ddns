@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Database } from "bun:sqlite";
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';

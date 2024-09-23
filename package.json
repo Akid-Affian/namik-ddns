@@ -6,20 +6,20 @@
     "dev": "cross-env NODE_ENV=development astro dev",
     "start": "cross-env NODE_ENV=development node ./dist/server/entry.mjs",
     "build": "rimraf dist && astro build",
-    "build:check": "rimraf dist && astro check && astro build",
+    "build:bun": "rimraf dist && astro build --outdir dist",
+    "build:check": "rimraf dist && astro check && astro build --outdir dist",
     "preview": "astro preview",
     "astro": "astro",
     "clean": "rimraf dist",
-    "start:prod": "cross-env NODE_ENV=production node ./dist/server/entry.mjs"
+    "start:prod": "cross-env NODE_ENV=production node ./dist/server/entry.mjs",
+    "start:bun": "cross-env NODE_ENV=production bun ./dist/server/entry.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^8.3.3",
     "@astrojs/tailwind": "^5.1.0",
     "@fontsource/poppins": "^5.1.0",
-    "@types/better-sqlite3": "^7.6.11",
     "astro": "^4.15.6",
-    "better-sqlite3": "^11.3.0",
     "cross-env": "^7.0.3",
+    "@nurodev/astro-bun": "^1.1.5",
     "ipaddr.js": "^2.2.0",
     "node-cache": "^5.1.2",
     "rimraf": "^6.0.1",
@@ -28,6 +28,7 @@
     "typescript": "^5.6.2"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.3"
+    "@astrojs/check": "^0.9.3",
+    "@types/bun": "^1.1.10"
   }
 }

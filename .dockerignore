@@ -6,3 +6,4 @@ dist
 .astro
 README.md
 API-SPEC.md
+docker/
