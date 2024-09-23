@@ -1,0 +1,56 @@
+---
+const {
+  id,                 // Unique ID for the modal
+  isVisible,          // Control the modal's visibility (true/false)
+  confirmButtonText,  // Label for the confirm button
+  cancelButtonText,   // Label for the cancel button
+  disableFooter = false, // Optional prop to disable the default footer
+} = Astro.props;
+---
+<div
+  id={id}
+  class={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 invisible opacity-0`}
+  aria-hidden="true"
+>
+  <div class="bg-[#2C3333] rounded-lg shadow-lg p-8 max-w-lg w-full">
+    <header class="mb-4">
+      <slot name="header">
+        <h2 class="text-xl font-semibold text-gray-100">Default Modal Title</h2>
+      </slot>
+    </header>
+
+    <section class="mb-4">
+      <slot name="body">
+        <p class="text-gray-100">Default body content. Please provide custom content.</p>
+      </slot>
+    </section>
+
+    <section class="mb-4 text-red-500">
+      <slot name="warning">
+        <p>No warnings.</p>
+      </slot>
+    </section>
+
+    <div class="flex justify-end">
+      {disableFooter ? (
+        <slot name="footer"></slot>
+      ) : (
+        <>
+          <button
+            id={id + '-confirm-button'}
+            class={`bg-[#3E7059] hover:bg-[#2b5944] text-white px-4 py-2 ${id}-confirm-button rounded mr-2`}
+          >
+            {confirmButtonText}
+          </button>
+          <button
+            id={`${id}-cancel-button`}
+            class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded close-modal-button"
+            data-target={id}
+          >
+            {cancelButtonText}
+          </button>
+        </>
+      )}
+    </div>
+  </div>
+</div>

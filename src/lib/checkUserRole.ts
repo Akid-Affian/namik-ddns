@@ -7,7 +7,7 @@ export async function getUserRole(Astro: any): Promise<string | null> {
     if (!authToken) return null;
 
     const baseUrl = new URL(Astro.request.url).origin;
-    const apiUrl = `${baseUrl}/api/user-role`;
+    const apiUrl = `${baseUrl}/api/utils/user-role`;
 
     try {
         const response = await fetch(apiUrl, {

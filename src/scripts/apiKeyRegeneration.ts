@@ -23,7 +23,7 @@ export function initApiKeyRegeneration() {
                 regenerateButton.disabled = true;
                 regenerateButton.classList.add("opacity-50");
 
-                const response = await fetch("/api/regenerate-key", {
+                const response = await fetch("/api/user/regenerate-key", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

@@ -2,7 +2,6 @@ import type { APIRoute } from 'astro';
 import { db } from '../../lib/database/db';
 import { cacheManager } from "../../lib/utils/cacheManager";
 import ipaddr from 'ipaddr.js';
-import { getAppConfig } from '../../lib/appConfig'; 
 import { getIP } from '../../lib/utils/fetch-ip'; 
 import type { User } from '../../types/User';
 import type { Domain } from '../../types/Domain';
@@ -10,6 +9,7 @@ import type { Domain } from '../../types/Domain';
 export const GET: APIRoute = async ({ params, url, clientAddress }) => {
     const pathParts = params.params ? params.params.split('/') : [];
 
+    // Expect the path to include at least the full domain and token
     if (pathParts.length < 2 || pathParts.length > 3) {
         return new Response('KO\nInvalid URL format', {
             status: 400,
@@ -17,14 +17,12 @@ export const GET: APIRoute = async ({ params, url, clientAddress }) => {
         });
     }
 
-    const appConfig = getAppConfig();
-    const baseDomain = appConfig.base_domain || 'example.com'; 
-
-    const domain = pathParts[0] || '';  
-    const token = pathParts[1] || '';   
-    let ip = pathParts[2] || null;      
+    const fullDomain = pathParts[0];  // Full domain must now be provided by the user
+    const token = pathParts[1];       // User's API key/token
+    let ip = pathParts[2] || null;    // Optional IP address
     let ipv6: string | null = null;
 
+    // If no IP is provided, detect the client's IP address
     if (!ip) {
         const detectedIP = getIP({ clientAddress });
         if (ipaddr.isValid(detectedIP)) {
@@ -41,7 +39,6 @@ export const GET: APIRoute = async ({ params, url, clientAddress }) => {
             });
         }
     } else if (ip && ipaddr.isValid(ip)) {
-
         if (ipaddr.parse(ip).kind() === 'ipv6') {
             ipv6 = ip;
             ip = null;
@@ -53,6 +50,7 @@ export const GET: APIRoute = async ({ params, url, clientAddress }) => {
         });
     }
 
+    // Validate the API key/token
     const userStmt = db.prepare("SELECT id, api_key FROM users WHERE api_key = ?");
     const user = userStmt.get(token) as User | undefined;
 
@@ -63,19 +61,18 @@ export const GET: APIRoute = async ({ params, url, clientAddress }) => {
         });
     }
 
-    const fullDomainName = domain.includes(baseDomain) ? domain : `${domain}.${baseDomain}`;
+    // Direct lookup of the full domain in the database (no subdomain/base domain logic)
     const domainStmt = db.prepare("SELECT id FROM domains WHERE domain_name = ? AND user_id = ?");
-    const domainRecord = domainStmt.get(fullDomainName, user.id) as Domain | undefined;
+    const domainRecord = domainStmt.get(fullDomain, user.id) as Domain | undefined;
 
     if (!domainRecord) {
-        return new Response(`KO\nDomain not found or not owned by user: ${fullDomainName}`, {
+        return new Response(`KO\nDomain not found or not owned by user: ${fullDomain}`, {
             status: 404,
             headers: { 'Content-Type': 'text/plain' }
         });
     }
 
     let responseText = 'OK';
-
     const currentTime = Date.now();
 
     const checkCurrentRecord = (type: string, content: string) => {
@@ -150,7 +147,7 @@ export const GET: APIRoute = async ({ params, url, clientAddress }) => {
     }
 
     if (!domainUpdateOccurred && !domainNoChangeOccurred) {
-        responseText += `\nNo changes made for domain: ${fullDomainName}`;
+        responseText += `\nNo changes made for domain: ${fullDomain}`;
     }
 
     cacheManager.invalidateCache('userDomains', user.id.toString());

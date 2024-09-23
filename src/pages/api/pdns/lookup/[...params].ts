@@ -22,7 +22,7 @@ export const GET: APIRoute = async ({ params }) => {
     }
 
     try {
-        const baseDomainStmt = db.prepare(`SELECT base_domain FROM app_config`);
+        const baseDomainStmt = db.prepare(`SELECT base_domain FROM app_config WHERE id = 1`);
         const baseDomainRow = baseDomainStmt.get() as { base_domain?: string };
         const baseDomain = baseDomainRow?.base_domain;
 
@@ -33,7 +33,6 @@ export const GET: APIRoute = async ({ params }) => {
         const queryParams: any[] = [];
 
         if (isWildcard) {
-            // For wildcard queries, only proceed if qtype is 'TXT' or 'ANY'
             if (qtype === 'ANY' || qtype === 'TXT') {
                 query = `
                     SELECT record_type, content, ttl, domain_name
@@ -48,14 +47,12 @@ export const GET: APIRoute = async ({ params }) => {
                 `;
                 queryParams.push(actualDomain, `*.${actualDomain}`, `*.${actualDomain.split('.').slice(1).join('.')}`, '*');
             } else {
-                // For non-TXT wildcard queries, return an empty result
                 return new Response(JSON.stringify({ result: [] }), {
                     status: 200,
                     headers: { 'Content-Type': 'application/json' }
                 });
             }
         } else {
-            // For non-wildcard queries, look for exact matches of all types
             query = `
                 SELECT record_type, content, ttl, domain_name
                 FROM dns_records 
@@ -83,6 +80,17 @@ export const GET: APIRoute = async ({ params }) => {
                 }
             }
         }
+
+        // NEW: Additional domains query part
+        const additionalDomainsQuery = `
+            UNION ALL
+            SELECT dns_records.record_type, dns_records.content, dns_records.ttl, additional_domains.domain_name
+            FROM dns_records
+            JOIN additional_domains ON dns_records.additional_domain_id = additional_domains.id
+            WHERE additional_domains.domain_name = ?
+        `;
+        query += additionalDomainsQuery;
+        queryParams.push(actualDomain);
 
         const recordsStmt = db.prepare(query);
         const records = recordsStmt.all(...queryParams) as (DNSRecord & { domain_name: string })[];

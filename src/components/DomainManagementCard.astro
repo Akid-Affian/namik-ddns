@@ -7,11 +7,13 @@ import { cacheManager } from "../lib/utils/cacheManager";
 import { getAppConfig } from "../lib/appConfig";
 import type { Domain } from "../types/Domain";
 import type { User } from "../types/User";
+import Icon from "@components/Icon.astro";
 import { format } from "timeago.js";
 
 const cookies = Astro.request.headers.get("cookie") || "";
 const authToken = getCookieValue(cookies, "auth_token");
 let userDomains: Domain[] = [];
+let additionalDomains: Array<{ id: number; domain_name: string }> = []; // Array for additional domains
 
 const appConfig = getAppConfig();
 
@@ -22,27 +24,25 @@ if (authToken && verifySession(authToken)) {
         .get(authToken) as User | undefined;
 
     if (user) {
-        
         const cache = cacheManager.getCache("userDomains", 180);
         userDomains = cache.get(user.id) || [];
 
         if (userDomains.length === 0) {
-            
             userDomains = db
                 .prepare(
                     "SELECT id, domain_name, created_at, updated_at FROM domains WHERE user_id = ?",
                 )
                 .all(user.id) as Domain[];
 
-            
             userDomains = userDomains.map((domain) => {
                 const dnsRecords = db
                     .prepare(
-                        "SELECT record_type, content FROM dns_records WHERE domain_id = ?",
+                        "SELECT record_type, content, updated_at FROM dns_records WHERE domain_id = ?",
                     )
                     .all(domain.id) as Array<{
                     record_type: string;
                     content: string;
+                    updated_at: number;
                 }>;
 
                 const aRecords = dnsRecords
@@ -55,20 +55,29 @@ if (authToken && verifySession(authToken)) {
                     .map((record) => record.content)
                     .join(", ");
 
+                const lastUpdatedAt = dnsRecords.length > 0 
+                    ? dnsRecords.reduce((latest, record) => Math.max(latest, record.updated_at), domain.updated_at)
+                    : domain.updated_at;
 
                 return {
                     ...domain,
                     aRecords,
                     aaaaRecords,
+                    lastUpdatedAt,
                 };
             });
 
-
             cache.set(user.id, userDomains);
         }
+
+        // Fetch additional domains from additional_domains table
+        additionalDomains = db
+            .prepare(
+                "SELECT id, domain_name FROM additional_domains"
+            )
+            .all() as Array<{ id: number; domain_name: string }>;
     }
 }
-
 
 const baseDomain = appConfig.base_domain;
 ---
@@ -92,10 +101,32 @@ const baseDomain = appConfig.base_domain;
                     id="subdomainInput"
                     class="px-3 py-2 flex-grow focus:outline-none"
                 />
-                <span
-                    class="bg-neutral-900 text-gray-100 px-3 py-2 rounded-r-md md:rounded-none truncate max-w-xs"
-                    >.{baseDomain}</span
-                >
+                <div class="relative inline-block w-full max-w-xs">
+                    {additionalDomains.length > 0 ? (
+                      <div>
+                        <select
+                          id="baseDomainSelect"
+                          class="bg-neutral-900 text-gray-100 px-3 py-2 rounded-r-md md:rounded-none truncate max-w-xs appearance-none pr-10 block w-full"
+                        >
+                          <option value={baseDomain} selected>.{baseDomain}</option>
+                          {additionalDomains.map((domain) => (
+                            <option value={domain.domain_name}>.{domain.domain_name}</option>
+                          ))}
+                        </select>
+                    
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <Icon name="down" size={16} class="text-gray-100" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div class="bg-neutral-900 text-gray-100 px-3 py-2 rounded-md md:rounded-none truncate max-w-xs">
+                          <span id="baseDomainDisplay">.{baseDomain}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
             </div>
             <button
                 id="addDomainButton"
@@ -148,7 +179,7 @@ const baseDomain = appConfig.base_domain;
                                     />
                                 </td>
                                 <td class="py-2 px-4">
-                                    {format(domain.updated_at)}
+                                    {format(domain.lastUpdatedAt || new Date())}
                                 </td>
                                 <td class="py-2 px-4">
                                     <button

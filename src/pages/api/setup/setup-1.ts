@@ -1,10 +1,6 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../lib/database/db';
-
-interface RequestBody {
-  baseDomain: string;
-  nameServer?: string | string[];
-}
+import type { RequestBody } from '../../../types/RequestBody';
 
 export const POST: APIRoute = async ({ request }) => {
   try {

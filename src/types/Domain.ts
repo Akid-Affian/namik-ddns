@@ -4,6 +4,7 @@ export interface Domain {
     domain_name: string;
     created_at: number; 
     updated_at: number;
+    lastUpdatedAt?: number;
     aRecords?: string;
     aaaaRecords?: string; 
 }

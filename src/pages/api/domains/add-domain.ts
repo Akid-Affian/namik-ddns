@@ -11,13 +11,12 @@ const subdomainRegex = /^(?!-)[a-z0-9-]{1,63}(?<!-)$/;
 export const POST: APIRoute = async ({ request }) => {
   
   const appConfig = getAppConfig();
-  const baseDomain = appConfig.base_domain || '';
+  const defaultBaseDomain = appConfig.base_domain || '';
 
   // Get cookies from the request
   const cookies = request.headers.get('cookie') || '';
   const authToken = getCookieValue(cookies, 'auth_token');
 
-  
   if (!authToken) {
     return new Response(JSON.stringify({ error: 'No auth token provided' }), {
       status: 401,
@@ -25,7 +24,6 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  
   if (!verifySession(authToken)) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
@@ -35,6 +33,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const formData = await request.formData();
   let subdomain = formData.get("subdomain") as string;
+  let zone = formData.get("zone") as string | null; // Optional zone
 
   subdomain = subdomain.toLowerCase();
 
@@ -45,7 +44,23 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  // Construct the full domain and convert it to lowercase
+  let baseDomain = defaultBaseDomain;
+
+  if (zone) {
+    zone = zone.toLowerCase();
+    const additionalDomainCheckStmt = db.prepare("SELECT domain_name FROM additional_domains WHERE domain_name = ?");
+    const additionalDomain = additionalDomainCheckStmt.get(zone) as { domain_name: string } | undefined;
+
+    if (!additionalDomain) {
+      return new Response(JSON.stringify({ error: 'Invalid zone specified' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    baseDomain = additionalDomain.domain_name;
+  }
+
   const fullDomain = `${subdomain}.${baseDomain}`.toLowerCase();
 
   const globalDomainCheckStmt = db.prepare("SELECT id FROM domains WHERE domain_name = ?");
@@ -58,6 +73,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
+  // Retrieve the user by auth token
   const userStmt = db.prepare("SELECT id FROM users WHERE auth_token = ?");
   const user = userStmt.get(authToken) as User | undefined;
 
@@ -78,7 +94,6 @@ export const POST: APIRoute = async ({ request }) => {
     insertDomainStmt.run(user.id, fullDomain, currentTime, currentTime);
 
     // Invalidate the cache for the user's domains
-    console.log(`from add-domains invalidate: ${user.id}`);
     cacheManager.invalidateCache('userDomains', user.id.toString());
     cacheManager.invalidateCache('allUsers', user.id.toString());
 

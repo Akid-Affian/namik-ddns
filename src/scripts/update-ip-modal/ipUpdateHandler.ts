@@ -29,7 +29,7 @@ export const updateIpAddresses = async (): Promise<void> => {
             }
 
             try {
-                const response = await fetch("/api/update-dns-records", {
+                const response = await fetch("/api/user/update-dns-records", {
                     method: "POST",
                     body: formData,
                     headers: {
