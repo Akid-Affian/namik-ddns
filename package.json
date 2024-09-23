@@ -4,14 +4,14 @@
   "version": "0.1.3",
   "scripts": {
     "dev": "cross-env NODE_ENV=development astro dev",
-    "start": "cross-env NODE_ENV=development node ./dist/server/entry.mjs",
+    "start": "cross-env NODE_ENV=development bun ./dist/server/entry.mjs",
     "build": "rimraf dist && astro build",
     "build:bun": "rimraf dist && astro build --outdir dist",
     "build:check": "rimraf dist && astro check && astro build --outdir dist",
     "preview": "astro preview",
     "astro": "astro",
     "clean": "rimraf dist",
-    "start:prod": "cross-env NODE_ENV=production node ./dist/server/entry.mjs",
+    "start:prod": "cross-env NODE_ENV=production bun ./dist/server/entry.mjs",
     "start:bun": "cross-env NODE_ENV=production bun ./dist/server/entry.mjs"
   },
   "dependencies": {
