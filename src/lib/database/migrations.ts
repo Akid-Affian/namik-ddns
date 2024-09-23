@@ -79,12 +79,13 @@ const migrations = [
         CREATE TABLE dns_records (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           domain_id INTEGER,
-          record_type TEXT CHECK(record_type IN ('A', 'AAAA', 'TXT', 'NS', 'SOA', 'ALIAS')) NOT NULL,
+          record_type TEXT CHECK(record_type IN ('A', 'AAAA', 'TXT', 'NS', 'SOA', 'ALIAS', 'MX', 'CNAME')) NOT NULL,
           content TEXT NOT NULL,
           ttl INTEGER NOT NULL DEFAULT 3600,
           created_at INTEGER NOT NULL,
           updated_at INTEGER NOT NULL,
           is_additional_domain INTEGER NOT NULL DEFAULT 0,
+          is_advanced_record INTEGER NOT NULL DEFAULT 0,
           additional_domain_id INTEGER DEFAULT NULL,
           FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
           FOREIGN KEY (additional_domain_id) REFERENCES additional_domains(id) ON DELETE CASCADE
@@ -103,6 +104,9 @@ const migrations = [
   
         ALTER TABLE app_config
         ADD COLUMN delete_base_domain_enabled INTEGER NOT NULL DEFAULT 0;
+
+        ALTER TABLE domains
+        ADD COLUMN is_advanced_record INTEGER NOT NULL DEFAULT 0;
   
         COMMIT;
       `);

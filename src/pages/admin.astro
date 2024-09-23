@@ -95,12 +95,18 @@ if (!cachedUsers) {
                     />
                 </div>
 
-                <div class="space-x-2 md:space-y-0 space-y-4">
+                <div class="flex flex-wrap gap-4">
+                    <a
+                        href="/admin/advance-dns"
+                        class={`bg-[#7F3476] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#702E69] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
+                    >
+                        Advance DNS Management
+                    </a>
                     <a
                         href="/admin/manage-base-domains"
                         class={`bg-[#2C6D6A] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#265E5A] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
                     >
-                    Manage Base Domains
+                        Manage Base Domains
                     </a>
                     <button
                         id="modifyAppConfigButton"
@@ -126,7 +132,8 @@ if (!cachedUsers) {
                     >
                         Add User
                     </button>
-                </div>                
+                </div>
+                     
             </div>
 
             <div class="overflow-x-auto">
