@@ -1,0 +1,49 @@
+---
+import Modal from "@components/v2/Modal.astro";
+---
+
+<Modal
+  id="delete-advance-dns-modal"
+  confirmButtonText="Confirm"
+  cancelButtonText="Cancel"
+  disableFooter={true}
+>
+  <h2 slot="header" class="text-xl font-semibold text-gray-100">
+    Delete DNS Record(s)
+  </h2>
+
+  <div slot="body">
+    <p class="text-gray-100">
+      Are you sure you want to delete the following DNS record(s)?
+    </p>
+
+    <!-- Display Record Data -->
+    <div class="mt-4 text-gray-100">
+      <p>Record Name: <span id="delete-record-name"></span></p>
+      <p>Record Type: <span id="delete-record-type"></span></p>
+      <p>Record Content: <span id="delete-record-content"></span></p>
+      <p>TTL: <span id="delete-record-ttl"></span></p>
+    </div>
+
+    <!-- Hidden input to store comma-separated record IDs -->
+    <input type="hidden" id="delete-record-ids" />
+  </div>
+
+  <p slot="warning" class="text-red-500">
+    Deleting DNS records is irreversible.
+  </p>
+
+  <div slot="footer">
+    <button
+      class="delete-dns-record-confirm-button bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+    >
+      Confirm
+    </button>
+    <button
+      class="close-modal-button bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded ml-2"
+      data-target="delete-advance-dns-modal"
+    >
+      Cancel
+    </button>
+  </div>
+</Modal>

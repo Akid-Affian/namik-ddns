@@ -1,13 +1,16 @@
 export function setupDeleteDnsRecordButtonListener() {
+
   document.addEventListener("click", handleDeleteDnsRecordClick);
+
+  document.addEventListener("click", handleOpenDeleteModalClick);
 }
 
 async function handleDeleteDnsRecordClick(event: MouseEvent) {
   const target = event.target as HTMLElement;
 
-  const deleteDnsRecordButton = target.closest(".delete-dns-record-confirm-button");
+  const deleteConfirmButton = target.closest(".delete-dns-record-confirm-button");
 
-  if (!deleteDnsRecordButton) return;
+  if (!deleteConfirmButton) return;
 
   const userConfirmation = window.prompt('Type "Confirm" to proceed with DNS record deletion (case insensitive).');
 
@@ -20,15 +23,18 @@ async function handleDeleteDnsRecordClick(event: MouseEvent) {
 }
 
 async function handleDeleteDnsRecord() {
-
+  const recordIdsElement = document.getElementById("delete-record-ids") as HTMLInputElement | null;
   const recordNameElement = document.getElementById("delete-record-name");
   const recordTypeElement = document.getElementById("delete-record-type");
   const recordContentElement = document.getElementById("delete-record-content");
   const recordTtlElement = document.getElementById("delete-record-ttl");
 
+  const recordIdsString = recordIdsElement?.value || '';
+  const recordIds = recordIdsString.split(',').map(idStr => parseInt(idStr.trim(), 10)).filter(id => !isNaN(id));
+
   const recordName = recordNameElement?.textContent?.trim();
   const recordType = recordTypeElement?.textContent?.trim();
-  const recordContents = recordContentElement?.textContent?.split(",").map(s => s.trim()) || [];
+  const recordContent = recordContentElement?.textContent?.trim();
   const recordTtl = parseInt(recordTtlElement?.textContent?.trim() || "0", 10);
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -40,14 +46,22 @@ async function handleDeleteDnsRecord() {
   }
 
   try {
-
-    const data = {
+    const data: any = {
       zone: zone,
       name: recordName,
       type: recordType,
-      contents: recordContents,
       ttl: recordTtl,
     };
+
+    if (recordIds.length > 0) {
+      data.ids = recordIds;
+    } else {
+
+      if (recordContent) {
+        data.content = recordContent;
+      }
+
+    }
 
     const response = await fetch("/api/v2/admin/delete-advance-dns", {
       method: "POST",
@@ -69,4 +83,30 @@ async function handleDeleteDnsRecord() {
     console.error("Error deleting DNS record:", error);
     alert("An unexpected error occurred.");
   }
+}
+
+function handleOpenDeleteModalClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+
+  const deleteButton = target.closest('[data-open-modal="delete-advance-dns-modal"]');
+
+  if (!deleteButton) return;
+
+  const recordIds = deleteButton.getAttribute('data-record-ids'); 
+  const recordName = deleteButton.getAttribute('data-record-name');
+  const recordType = deleteButton.getAttribute('data-record-type');
+  const recordContent = deleteButton.getAttribute('data-record-content');
+  const recordTtl = deleteButton.getAttribute('data-record-ttl');
+
+  const recordNameElement = document.getElementById("delete-record-name");
+  const recordTypeElement = document.getElementById("delete-record-type");
+  const recordContentElement = document.getElementById("delete-record-content");
+  const recordTtlElement = document.getElementById("delete-record-ttl");
+  const recordIdsInput = document.getElementById("delete-record-ids") as HTMLInputElement | null;
+
+  if (recordNameElement) recordNameElement.textContent = recordName || '';
+  if (recordTypeElement) recordTypeElement.textContent = recordType || '';
+  if (recordContentElement) recordContentElement.textContent = recordContent || '';
+  if (recordTtlElement) recordTtlElement.textContent = recordTtl || '';
+  if (recordIdsInput) recordIdsInput.value = recordIds || '';
 }

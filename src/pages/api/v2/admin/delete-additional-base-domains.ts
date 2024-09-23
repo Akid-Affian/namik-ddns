@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { db } from '@lib/database/db';
+import { db, backupDatabase } from "@lib/database/db"; 
 import { verifySession } from '@lib/verifySession';
 import { getCookieValue } from '@lib/utils/cookies';
 import { cacheManager } from '@lib/utils/cacheManager';
@@ -89,6 +89,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Begin transaction for deleting domain and logs
     db.transaction(() => {
+
+        // Backup the database before deletion
+  backupDatabase();
+
       // Delete DNS records for the additional domain and subdomains
       const deleteDnsRecordsStmt = db.prepare(`
         DELETE FROM dns_records WHERE additional_domain_id = ? OR content LIKE ?

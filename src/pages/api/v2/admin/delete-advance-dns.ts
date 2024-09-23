@@ -41,9 +41,9 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const body = await request.json();
-    const { zone, name, type, ttl } = body;
+    const { zone, name, type, ttl, content, ids } = body;
 
-    if (!zone || !name || !type || !ttl) {
+    if (!zone || !name || !type || !ttl) { 
       console.error('Missing required parameters');
       return new Response(JSON.stringify({ error: 'Missing required parameters' }), {
         status: 400,
@@ -55,16 +55,15 @@ export const POST: APIRoute = async ({ request }) => {
     let additionalDomainId: number | null = null;
 
     if (name === '@') {
-      // Handle root domain records
-      // Fetch the base domain from app_config
+
       const baseDomainStmt = db.prepare('SELECT base_domain FROM app_config WHERE id = 1');
       const baseDomainRow = baseDomainStmt.get();
 
       if (baseDomainRow && (baseDomainRow as { base_domain: string }).base_domain === zone) {
-        // It's the base domain
-        additionalDomainId = null; // For base domain, additional_domain_id is NULL
+
+        additionalDomainId = null; 
       } else {
-        // Check additional domains
+
         const additionalDomainStmt = db.prepare('SELECT id FROM additional_domains WHERE domain_name = ?');
         const additionalDomainRow = additionalDomainStmt.get(zone) as { id: number } | undefined;
 
@@ -79,7 +78,7 @@ export const POST: APIRoute = async ({ request }) => {
         }
       }
     } else {
-      // Handle subdomain records
+
       const fullDomainName = `${name}.${zone}`;
       const domainStmt = db.prepare('SELECT id FROM domains WHERE domain_name = ? AND is_advanced_record = 1');
       const domainRow = domainStmt.get(fullDomainName) as { id: number } | undefined;
@@ -95,36 +94,58 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
 
-    // Build the DELETE query
     let deleteQuery = `
       DELETE FROM dns_records
       WHERE is_advanced_record = 1
-        AND record_type = ?
-        AND ttl = ?
     `;
 
-    const params = [type, ttl];
+    const params: any[] = [];
 
-    if (domainId) {
-      deleteQuery += ' AND domain_id = ?';
-      params.push(domainId);
-    } else if (additionalDomainId !== null) {
-      deleteQuery += ' AND additional_domain_id = ?';
-      params.push(additionalDomainId);
+    if (ids && Array.isArray(ids) && ids.length > 0) {
+
+      const placeholders = ids.map(() => '?').join(',');
+      deleteQuery += ` AND id IN (${placeholders})`;
+      params.push(...ids);
     } else {
-      deleteQuery += ' AND additional_domain_id IS NULL';
+
+      deleteQuery += `
+        AND record_type = ?
+        AND ttl = ?
+      `;
+      params.push(type, ttl);
+
+      if (content) {
+        deleteQuery += ' AND content = ?';
+        params.push(content);
+      }
+
+      if (domainId) {
+        deleteQuery += ' AND domain_id = ?';
+        params.push(domainId);
+      } else if (additionalDomainId !== null) {
+        deleteQuery += ' AND additional_domain_id = ?';
+        params.push(additionalDomainId);
+      } else {
+        deleteQuery += ' AND additional_domain_id IS NULL';
+      }
     }
 
     const deleteStmt = db.prepare(deleteQuery);
     const result = deleteStmt.run(...params);
 
     if (result.changes > 0) {
-      // Invalidate cache
+
       cacheManager.invalidateAllCacheEntries('dnsRecords');
       cacheManager.invalidateAllCacheEntries('advancednsRecords');
       cacheManager.invalidateAllCacheEntries('unusedAdvancedDomains');
 
-      // Log the deletion
+      let logDetails = '';
+      if (ids && Array.isArray(ids) && ids.length > 0) {
+        logDetails = `Deleted DNS records with IDs: ${ids.join(", ")}`;
+      } else {
+        logDetails = `Deleted advanced DNS records for zone: ${zone}, name: ${name}, type: ${type}, ttl: ${ttl}` + (content ? `, content: ${content}` : '');
+      }
+
       const logActionStmt = db.prepare(`
         INSERT INTO admin_logs (admin_username, action, target_username, details, timestamp)
         VALUES (?, ?, ?, ?, ?)
@@ -133,11 +154,10 @@ export const POST: APIRoute = async ({ request }) => {
         currentUser.username,
         'delete-advance-dns-record',
         null,
-        `Deleted advanced DNS records for zone: ${zone}, name: ${name}, type: ${type}, ttl: ${ttl}`,
+        logDetails,
         Date.now()
       );
 
-      // Call the cleaner function
       cleanUpUnusedAdvancedDomains();
 
       return new Response(
