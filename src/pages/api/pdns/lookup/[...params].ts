@@ -71,9 +71,11 @@ export const GET: APIRoute = async ({ params }) => {
                     UNION ALL 
                     SELECT record_type, content, ttl, ? as domain_name
                     FROM dns_records 
-                    WHERE domain_id IS NULL
+                    WHERE domain_id IS NULL 
+                    AND is_additional_domain = 0
                 `;
                 queryParams.push(baseDomain);
+            
                 if (qtype !== 'ANY') {
                     query += ` AND record_type = ?`;
                     queryParams.push(qtype);
