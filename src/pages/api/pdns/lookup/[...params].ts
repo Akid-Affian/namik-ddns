@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../../../lib/database/db';
 import type { DNSRecord } from '../../../../types/DNSRecord';
+import { getZones } from '../../../../lib/utils/getZones'; // Import getZones
 
 export const GET: APIRoute = async ({ params }) => {
     const pathParts = params.params ? params.params.split('/') : [];
@@ -22,12 +23,17 @@ export const GET: APIRoute = async ({ params }) => {
     }
 
     try {
+        // Fetch all base domains (main and additional) from the config
+        const zones = getZones();
         const baseDomainStmt = db.prepare(`SELECT base_domain FROM app_config WHERE id = 1`);
         const baseDomainRow = baseDomainStmt.get() as { base_domain?: string };
         const baseDomain = baseDomainRow?.base_domain;
 
         const isWildcard = qname.startsWith('*.');
         const actualDomain = isWildcard ? qname.slice(2) : qname;
+
+        // Check if the domain is a base domain or a subdomain
+        const isBaseDomain = zones.includes(actualDomain); // Use getZones to check if it's a base domain
 
         let query = '';
         const queryParams: any[] = [];
@@ -66,16 +72,36 @@ export const GET: APIRoute = async ({ params }) => {
                 queryParams.push(qtype);
             }
 
-            if (actualDomain === baseDomain) {
+            // Handle wildcard cases for subdomains
+            query += `
+                UNION ALL
+                SELECT record_type, content, ttl, domain_name
+                FROM dns_records
+                JOIN domains ON dns_records.domain_id = domains.id
+                WHERE domain_name = ?
+            `;
+            queryParams.push(`*.${actualDomain}`);
+
+            if (qtype !== 'ANY') {
+                query += ` AND record_type = ?`;
+                queryParams.push(qtype);
+            }
+
+            // Handle main base domain records
+            if (isBaseDomain && actualDomain === baseDomain) {
                 query += `
                     UNION ALL 
                     SELECT record_type, content, ttl, ? as domain_name
                     FROM dns_records 
                     WHERE domain_id IS NULL 
                     AND is_additional_domain = 0
+                    AND NOT EXISTS (
+                        SELECT 1 FROM dns_records WHERE domain_id = (SELECT id FROM domains WHERE domain_name = ?)
+                        AND record_type = 'TXT'
+                    )
                 `;
-                queryParams.push(baseDomain);
-            
+                queryParams.push(baseDomain, actualDomain); // Prevent pulling TXT from subdomains
+
                 if (qtype !== 'ANY') {
                     query += ` AND record_type = ?`;
                     queryParams.push(qtype);
@@ -83,16 +109,21 @@ export const GET: APIRoute = async ({ params }) => {
             }
         }
 
-        // NEW: Additional domains query part
         const additionalDomainsQuery = `
             UNION ALL
             SELECT dns_records.record_type, dns_records.content, dns_records.ttl, additional_domains.domain_name
             FROM dns_records
             JOIN additional_domains ON dns_records.additional_domain_id = additional_domains.id
             WHERE additional_domains.domain_name = ?
+            AND dns_records.record_type != 'TXT' -- Exclude TXT for additional domains
         `;
         query += additionalDomainsQuery;
         queryParams.push(actualDomain);
+
+        if (qtype !== 'ANY') {
+            query += ` AND dns_records.record_type = ?`;
+            queryParams.push(qtype);
+        }
 
         const recordsStmt = db.prepare(query);
         const records = recordsStmt.all(...queryParams) as (DNSRecord & { domain_name: string })[];
