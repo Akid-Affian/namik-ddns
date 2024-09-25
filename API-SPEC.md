@@ -10,7 +10,7 @@ https://example.com/update?domains={YOURVALUE}&token={YOURVALUE}[&ip={YOURVALUE}
 
 ### Parameters
 
-- **domains** - **REQUIRED** - Full domain names must be specified, including the subdomain. For example, use `mywebsite.example.com` instead of just `mywebsite`. You can provide a list of domains separated by commas.
+- **domains** - **REQUIRED** - Full domain names must be specified. For example, use `mywebsite.example.com` instead of just `mywebsite`. You can provide a list of domains separated by commas.
 - **token** - **REQUIRED** - Your account token or API key. You can find your API key on the dashboard page.
 - **ip** - **OPTIONAL** - If left blank, the app will attempt to auto-detect the IP address (IPv4 or IPv6). You can also supply a valid IPv4 or IPv6 address.
 - **ipv6** - **OPTIONAL** - A valid IPv6 address.
