@@ -59,13 +59,7 @@ const baseDomain = config.base_domain ?? "example.com"; // Use default "example.
                     class="text-lg text-center mt-6 text-gray-100 list-disc list-inside"
                 >
                     <li>
-                        You can specify a single domain or provide a list of
-                        domains separated by commas.
-                    </li>
-                    <li>
-                        It's not necessary to include the <span
-                            class="font-mono">.{baseDomain}</span
-                        > part—just use the subdomain name.
+                        Full domain names must be specified. For example, use mywebsite.example.com instead of just mywebsite. You can provide a list of domains separated by commas.
                     </li>
                     <li>
                         If you don't specify an IP address, the system will
@@ -93,13 +87,13 @@ const baseDomain = config.base_domain ?? "example.com"; // Use default "example.
                 </p>
                 <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
     <p class="text-green-400 font-mono">
-        https://{baseDomain}/update?domains=mydomain&token=put-your-token-here&ip=1.1.1.1&verbose=true
+        https://{baseDomain}/update?domains=mydomain.{baseDomain}&token=put-your-token-here&ip=1.1.1.1&verbose=true
     </p>
 
     <p class="text-gray-100 text-center">or</p>
 
     <p class="text-green-400 font-mono">
-        https://{baseDomain}/update?domains=mydomain&token=put-your-token-here&ip=2001:4860:4860::8888&verbose=true
+        https://{baseDomain}/update?domains=mydomain.{baseDomain}&token=put-your-token-here&ip=2001:4860:4860::8888&verbose=true
     </p>
                 </div>
                 <p
@@ -146,7 +140,7 @@ const baseDomain = config.base_domain ?? "example.com"; // Use default "example.
                     <li>
                         <strong>domains</strong> - <span class="text-red-500"
                             >REQUIRED</span
-                        > - Comma-separated list of the subnames you want to update.
+                        > - Comma-separated list of the full domains you want to update.
                     </li>
                     <li>
                         <strong>token</strong> - <span class="text-red-500"
@@ -248,7 +242,7 @@ const baseDomain = config.base_domain ?? "example.com"; // Use default "example.
                 </p>
                 <div class="bg-gray-800 p-4 rounded-lg overflow-x-auto">
                     <p class="text-green-400 font-mono">
-                        https://{baseDomain}/update?domains=mydomain&token=mytoken&txt=mytext&verbose=true
+                        https://{baseDomain}/update?domains=mydomain.{baseDomain}&token=mytoken&txt=mytext&verbose=true
                     </p>
                 </div>
                 <p
@@ -291,7 +285,7 @@ const baseDomain = config.base_domain ?? "example.com"; // Use default "example.
                     <li>
                         <strong>domains</strong> - <span class="text-red-500"
                             >REQUIRED</span
-                        > - Comma-separated list of the subnames you want to update.
+                        > - Comma-separated list of the full domains you want to update.
                     </li>
                     <li>
                         <strong>token</strong> - <span class="text-red-500"
