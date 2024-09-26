@@ -79,7 +79,9 @@ export function addAdvancedDnsRecord(zone: string, name: string, record: DNSReco
             throw new Error('NS records cannot be added to the root domain.');
         }
 
-        const contents = record.content.split(',').map(content => content.trim());
+        const contents = record.record_type === 'TXT' 
+    ? [record.content.trim()]
+    : record.content.split(',').map(content => content.trim());
 
         if (['CNAME', 'ALIAS', 'TXT'].includes(record.record_type) && contents.length > 1) {
             throw new Error(`${record.record_type} record type does not support multiple values.`);
