@@ -80,6 +80,48 @@ if (!cachedUsers) {
 ---
 
 <Layout title="Admin">
+    <div class="flex justify-center items-center mb-2 admin-container p-6">
+    <div class="p-6 rounded-lg shadow-lg w-full max-w-6xl bg-[#2C3333]">
+        <div class="flex flex-wrap gap-4">
+            <a
+                href="/admin/advance-dns"
+                class={`bg-[#7F3476] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#702E69] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
+            >
+                Advance DNS Management
+            </a>
+            <a
+                href="/admin/manage-base-domains"
+                class={`bg-[#2C6D6A] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#265E5A] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
+            >
+                Manage Base Domains
+            </a>
+            <button
+                id="modifyAppConfigButton"
+                class={`bg-[#516b92] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#3e5373] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
+            >
+                Modify App Config
+            </button>
+            <button
+                id="modifyUserRoleButton"
+                class={`bg-blue-600 ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-blue-800 text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
+            >
+                Modify Role
+            </button>
+            <button
+                id="deleteUserButton"
+                class="bg-red-600 hover:bg-red-800 text-gray-100 px-4 py-2 rounded-md inline-block align-middle"
+            >
+                Delete User
+            </button>
+            <button
+                id="addUserButton"
+                class="bg-[#3E7059] hover:bg-[#2b5944] text-gray-100 px-4 py-2 rounded-md inline-block align-middle"
+            >
+                Add User
+            </button>
+        </div>
+    </div>
+</div>
     <main class="flex justify-center items-center mb-8 admin-container p-6">
         <div class="p-6 rounded-lg shadow-lg w-full max-w-6xl bg-[#2C3333]">
             <h1 class="text-white text-xl md:text-2xl text-center mb-4">
@@ -93,45 +135,6 @@ if (!cachedUsers) {
                         placeholder="Search User"
                         class="w-full px-4 py-2 rounded-md bg-[#1f2a2a] text-white border border-[#3E7059] focus:outline-none focus:ring-2 focus:ring-[#3E7059]"
                     />
-                </div>
-
-                <div class="flex flex-wrap gap-4">
-                    <a
-                        href="/admin/advance-dns"
-                        class={`bg-[#7F3476] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#702E69] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
-                    >
-                        Advance DNS Management
-                    </a>
-                    <a
-                        href="/admin/manage-base-domains"
-                        class={`bg-[#2C6D6A] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#265E5A] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
-                    >
-                        Manage Base Domains
-                    </a>
-                    <button
-                        id="modifyAppConfigButton"
-                        class={`bg-[#516b92] ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-[#3e5373] text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
-                    >
-                        Modify App Config
-                    </button>
-                    <button
-                        id="modifyUserRoleButton"
-                        class={`bg-blue-600 ${userRole === "Super-Admin" ? "" : "hidden"} hover:bg-blue-800 text-gray-100 px-4 py-2 rounded-md inline-block align-middle`}
-                    >
-                        Modify Role
-                    </button>
-                    <button
-                        id="deleteUserButton"
-                        class="bg-red-600 hover:bg-red-800 text-gray-100 px-4 py-2 rounded-md inline-block align-middle"
-                    >
-                        Delete User
-                    </button>
-                    <button
-                        id="addUserButton"
-                        class="bg-[#3E7059] hover:bg-[#2b5944] text-gray-100 px-4 py-2 rounded-md inline-block align-middle"
-                    >
-                        Add User
-                    </button>
                 </div>
                      
             </div>
