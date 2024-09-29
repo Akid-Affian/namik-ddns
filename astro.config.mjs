@@ -5,9 +5,6 @@ import tailwind from "@astrojs/tailwind";
 // https://astro.build/config
 export default defineConfig({
   output: "server",
-  security: {
-    checkOrigin: true
-  },
   adapter: bun({
     mode: "standalone",
   }),
