@@ -1,8 +1,8 @@
 ---
 import Layout from "@components/Layout.astro";
 import LoginAuthForm from "@components/LoginAuthForm.astro";
-import { loginUser } from "../lib/loginUser";
-import { getAppConfig } from "../lib/appConfig";
+import { loginUser } from "@lib/loginUser";
+import { getAppConfig } from "@lib/appConfig";
 
 let result: { success: boolean; message: string; authToken?: string; role?: string } = { success: false, message: "" };
 
