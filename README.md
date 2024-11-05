@@ -5,11 +5,11 @@
 
 A complete self-hosted DDNS solution alternative to DuckDNS.
 
+Live demo: https://zc.al/
+
 ![Home page](https://raw.githubusercontent.com/Akid-Affian/namik-ddns/main/public/image1.png)
 
 ![Dashboard page](https://raw.githubusercontent.com/Akid-Affian/namik-ddns/main/public/image2.png)
-
-Live demo: https://zc.al/
 
 # Self-Hosting
 Requirements
